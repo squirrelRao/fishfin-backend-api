@@ -1,0 +1,6 @@
+flask
+gunicorn
+gevent
+numpy
+pandas
+ta-lib
