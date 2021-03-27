@@ -68,7 +68,9 @@ nohup.out
 log/*
 # Scrapy stuff:
 .scrapy
-
+*.swap
+*.log
+*.out
 # Sphinx documentation
 docs/_build/
 
