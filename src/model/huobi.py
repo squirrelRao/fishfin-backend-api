@@ -25,9 +25,10 @@ class HuobiTrade:
         db = mongo_client.fishfin
         if data["type"] == "kline":
             for item in data["data"]:
+                print(item)
                 item["ktime"] = item["id"]
                 item.pop("id")
-                db.kline.update({"name":data["name"],"ktime":item["id"]},{"$set":item},upsert=True)
+                db.kline.update({"name":data["name"],"ktime":item["ktime"]},{"$set":item},upsert=True)
         return 
     
 

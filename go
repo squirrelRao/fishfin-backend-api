@@ -29,7 +29,7 @@ start() {
     else
         echo "staring $PID ..."
         touch $PID
-        if nohup gunicorn -k gevent --log-level=info -c config/gunicorn.conf app:app --preload 2>&1 &
+        if nohup gunicorn -k gevent --log-level=info -c gunicorn.conf app:app --preload 2>&1 &
         then echo $! >$PID
              echo "$(date '+%Y-%m-%d %X') : launch complete"
         else 

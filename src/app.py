@@ -1,5 +1,8 @@
 from flask import Flask
+from flask import request
+import json
 import logging
+from model.huobi import HuobiTrade
 
 app = Flask(__name__)
 logger = app.logger
@@ -9,6 +12,16 @@ def hello():
     logger.info("test from logger")
     print("test")  
     return 'hello water laker'
+
+
+@app.route('/v1/trade/data/push',methods=['POST'])
+def save_data():
+    logger.info("save data")
+    data = request.get_data()
+    data = json.loads(data)
+    ht = HuobiTrade()
+    ht.save_data(data)
+    return {"rc":0}
 
 
 if __name__ != '__main__':
