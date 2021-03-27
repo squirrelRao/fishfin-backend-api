@@ -6,9 +6,5 @@ class MongoClient:
         client = mc(url)
         return client
 
-def main():
-    x = MongoClient()
-    x = x.getClient("mongodb://localhost:27017/")
-    print(x.fishfin)
+mongo_client = MongoClient().getClient("mongodb://localhost:27017/")
 
-#main()
