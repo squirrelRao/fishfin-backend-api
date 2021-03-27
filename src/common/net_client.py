@@ -1,13 +1,23 @@
 # coding=UTF-8
 import time
 import sys
-import urllib
+import urllib.request as req
 import json
 import datetime
 
     
 class NetClient:
 
-    #request third-service api
-    def postThirdService(self,url,data,methods="POST",headers={'Content-Type':'application/json'}):
-        print("TEST")
+    #request network url
+    def request(self,url,data,method="POST",header={'Content-Type':'application/json'},coding='utf-8'):
+        data = json.dumps(data).encode(coding) 
+        request = req.Request(url,data = data,headers = header,method = method)
+        response = req.urlopen(request)
+        rs = response.read().decode(coding)
+        return rs
+
+def main():
+    x = NetClient()
+    print(x.request("http://www.baidu.com",{"test":"a"},"GET"))
+
+#main()
