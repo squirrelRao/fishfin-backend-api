@@ -1,0 +1,9 @@
+workers = 4
+worker_class = "gevent"
+bind = "0.0.0.0:5000"
+debug = True
+chdir = "src"
+capture_output=True
+loglevel="debug"
+accesslog = "/home/squirrelRao/workspace/fishfin-backend-api/log/access.log"
+errorlog = "/home/squirrelRao/workspace/fishfin-backend-api/log/api.log"
