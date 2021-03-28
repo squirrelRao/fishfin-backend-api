@@ -70,8 +70,10 @@ log/*
 .scrapy
 *.swap
 *.swp
+*.swo
 *.log
 *.out
+nohup.out
 # Sphinx documentation
 docs/_build/
 
