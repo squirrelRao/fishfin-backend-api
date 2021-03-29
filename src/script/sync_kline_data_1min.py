@@ -9,15 +9,14 @@ from model.user import User
 #sync basic info
 
 huobi = HuobiTrade()
-
-_list = net_client.get("http://lab.lakewater.cn/v1/symbol/watch/list")
-if _list["rc"] != 0:
-    return
+host = "http://lab.lakewater.cn"
+_list = net_client.get(host +"/v1/symbol/watch/list")
 period = "1min"
-
-for symbol in _list["data"]:
-    print("sync kline data:" + symbol + " "+period)
-    data = huobi.get_kline(symbol = symbol,period = period)
-    print(data)
-    net_client.post(url,data)
+if _list["rc"] == 0:
+    for symbol in _list["data"]:
+        print("sync kline data:" + symbol + " "+period)
+        data = huobi.get_kline(symbol = symbol,period = period)
+        print(data)
+        url = host +"/v1/trade/data/push"
+        net_client.post(url,data)
 
