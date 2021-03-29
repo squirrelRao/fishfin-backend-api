@@ -6,6 +6,7 @@ from common.net_client import net_client
 from model.huobi import HuobiTrade
 from model.user import User
 import datetime
+from datetime import date
 
 #sync kline data
 
@@ -14,9 +15,9 @@ host = "http://lab.lakewater.cn"
 url = host +"/v1/trade/data/push"
 
 now_hour = datetime.datetime.now().hour
-now_day = datetime.datetime.now().day
-now_month = datetime.datetime.now.month
-isoweekday = datetime.datetime.now().isoweekday
+now_day =  date.today().day
+now_month =  date.today().month
+isoweekday =  date.today().isoweekday()
 
 
 def sync_data(symbols,period):
