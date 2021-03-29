@@ -26,7 +26,6 @@ def sync_data(symbols,period):
 
 _list = net_client.get(host +"/v1/symbol/watch/list")
 if _list["rc"] == 0:
-    if 
     symbols = _list["data"]
     #sync hour data
     sync_data(symbols,"60min")
