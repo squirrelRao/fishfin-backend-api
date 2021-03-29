@@ -17,7 +17,7 @@ class HuobiTrade:
     def get_market_status(self):
         url = self.host + "/v2/market-status"
         res = net_client.get(url)
-        if res["status"] == "ok":
+        if res["code"] ==200:
             data = {"type":"market_status","data":res["data"]}
             return data
         return None

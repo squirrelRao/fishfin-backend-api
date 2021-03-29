@@ -12,7 +12,9 @@ class NetClient:
         self.session = requests.Session()
 
     def get(self,url,res_type="json"):
+        self.session = requests.Session()
         res = self.session.get(url)
+        self.session.close()
         if res_type =="json":
             return res.json()
         elif res_type == "text":
@@ -22,7 +24,9 @@ class NetClient:
 
     def post(self,url,data,header={'Content-Type':'application/json'},res_type="json"):
         data = json.dumps(data) 
-        res = self.session.post(url,data = data,header = header)
+        self.session = requests.Session()
+        res = self.session.post(url,data = data,headers = header,timeout=60)
+        self.session.close()
         if res_type == "json":
             return res.json()
         elif res_type == "text":
