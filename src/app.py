@@ -5,6 +5,7 @@ from bson import json_util
 import logging
 from model.huobi import HuobiTrade
 from model.user import User
+from model.kline import Kline
 from common.mongo_client import mongo_client
 
 app = Flask(__name__)
@@ -15,6 +16,15 @@ def hello():
     logger.info("test from logger")
     return 'hello water laker'
 
+
+@app.route('/v1/kline/query',methods=['POST'])
+def get_kline():
+    data = request.get_data()
+    data = json.loads(data)
+    kline = Kline()
+    logger.info(data)
+    res = kline.get_data(data["symbol"],data["period"],data["page_size"],data["page_no"])
+    return {"rc":0,"data":res}
 
 @app.route('/v1/trade/data/basic',methods=['GET'])
 def get_trade_basic_info():
