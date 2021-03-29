@@ -4,6 +4,7 @@ import json
 import logging
 from model.huobi import HuobiTrade
 from model.user import User
+from common.mongo_client import mongo_client
 
 app = Flask(__name__)
 logger = app.logger
@@ -12,6 +13,16 @@ logger = app.logger
 def hello():
     logger.info("test from logger")
     return 'hello water laker'
+
+
+@app.route('/v1/trade/data/basic',methods=['GET'])
+def get_trade_basic_info():
+    db = mongo_client.fishfin
+    currency = list(db.currency.find({}))
+    symbol = list(db.symbol.find({}))
+    market_status = list(db.market_status.find({}))
+    
+    return {"rc":0,"data":{"market_status":market_status,"currency":currency,"symol":symbol}}
 
 
 @app.route('/v1/symbol/watch/list',methods=['GET'])

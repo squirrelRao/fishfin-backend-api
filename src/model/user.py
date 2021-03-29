@@ -5,7 +5,6 @@ sys.path.append("..")
 from common.mongo_client import mongo_client
 from common.net_client import net_client
 from bson import ObjectId
-import logging
 
 class User:
 
@@ -29,11 +28,10 @@ class User:
     def get_quantization_symbols(self,user_id=None):
         symbols = []
         query = {"status":1}
-        if user_id is not None:
+        if user_is is not None:
             query["user_id"] = user_id
-        print(query,flush=True)
         res = self.db.user_quantization.find(query)
-        for item in res:
+        for item in symbols:
             if item["symbol"] not in symbols:
                 symbols.append(item["symbol"])
         return symbols
