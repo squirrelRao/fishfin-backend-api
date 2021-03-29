@@ -41,7 +41,7 @@ class HuobiTrade:
         return None
 
     #get kline data
-    def get_kline(self,symbol,period = "1min",size=10): #period in 1min, 5min, 15min, 30min, 60min, 4hour, 1day, 1mon, 1week, 1year
+    def get_kline(self,symbol,period = "1min",size=1): #period in 1min, 5min, 15min, 30min, 60min, 4hour, 1day, 1mon, 1week, 1year
         url = self.host + "/market/history/kline?symbol="+symbol+"&period="+period+"&size="+str(size)
         print(url)
         res = net_client.get(url)
