@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import request
 import json
+from bson import json_util
 import logging
 from model.huobi import HuobiTrade
 from model.user import User
@@ -22,8 +23,8 @@ def get_trade_basic_info():
     symbol = list(db.symbol.find({}))
     market_status = list(db.market_status.find({}))
     
-    return {"rc":0,"data":{"market_status":market_status,"currency":currency,"symol":symbol}}
-
+    rs = {"rc":0,"data":{"market_status":market_status,"currency_count":len(currency),"symbol_count":len(symbol)}}
+    return json.loads(json_util.dumps(rs))
 
 @app.route('/v1/symbol/watch/list',methods=['GET'])
 def get_symbol_watch_list():

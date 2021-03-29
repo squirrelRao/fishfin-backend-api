@@ -31,7 +31,7 @@ class User:
         if user_id is not None:
             query["user_id"] = user_id
         res = self.db.user_quantization.find(query)
-        for item in symbols:
+        for item in res:
             if item["symbol"] not in symbols:
                 symbols.append(item["symbol"])
         return symbols
