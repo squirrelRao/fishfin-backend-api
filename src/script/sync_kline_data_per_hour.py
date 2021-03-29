@@ -12,14 +12,25 @@ import datetime
 huobi = HuobiTrade()
 host = "http://lab.lakewater.cn"
 url = host +"/v1/trade/data/push"
-period = "1min"
 
-_list = net_client.get(host +"/v1/symbol/watch/list")
-if _list["rc"] == 0:
-    #sync 1min data
+now_hour = datetime.datetime.now().hour
+now_min = datetime.datetime.now().minute
+
+def sync_data(symbols,period):
     for symbol in _list["data"]:
-        print("sync kline data:" + symbol + " "+period)
+        print("sync kline data:" + symbol + " "+period) 
         data = huobi.get_kline(symbol = symbol,period = period)
         print(data)
         net_client.post(url,data)
 
+
+_list = net_client.get(host +"/v1/symbol/watch/list")
+if _list["rc"] == 0:
+    if 
+    symbols = _list["data"]
+    #sync hour data
+    sync_data(symbols,"60min")
+    
+    #sync 4hour data
+    if now_hour%4 == 0:
+        sync_data(symbols,"4hour")
