@@ -4,7 +4,7 @@ import time
 sys.path.append("..")
 from common.mongo_client import mongo_client
 from common.net_client import net_client
-
+from common.common_util import common_util as cu
 class HuobiTrade:
 
     def __init__(self):
@@ -57,6 +57,7 @@ class HuobiTrade:
             for item in data["data"]:
                 print(item)
                 item["ktime"] = item["id"]
+                item["ktime_str"] = cu.timestamp_to_string(item["ktime"])
                 item["update_time"] = time.time()
                 item.pop("id")
                 db.kline.update({"name":data["name"],"ktime":item["ktime"]},{"$set":item},upsert=True)
