@@ -15,9 +15,9 @@ host = "http://lab.lakewater.cn"
 url = host +"/v1/trade/data/push"
 
 now_hour = datetime.datetime.now().hour
-now_day =  date.today().day
-now_month =  date.today().month
-isoweekday =  date.today().isoweekday()
+now_day =  datetime.datetime.now().day
+now_month =  datetime.datetime.now().month
+isoweekday =  datetime.datetime.now().isoweekday()
 
 
 def sync_data(symbols,period):
