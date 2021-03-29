@@ -28,7 +28,7 @@ class User:
     def get_quantization_symbols(self,user_id=None):
         symbols = []
         query = {"status":1}
-        if user_is is not None:
+        if user_id is not None:
             query["user_id"] = user_id
         res = self.db.user_quantization.find(query)
         for item in symbols:
