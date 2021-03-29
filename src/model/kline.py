@@ -18,9 +18,10 @@ class Kline:
         skip = page_size * ( page_no - 1)
         name = "market."+symbol+".kline."+period
         query = {"name":name}
+        total_count = self.db.kline.count(query)
         res = self.db.kline.find(query).sort("ktime",-1).limit(page_size).skip(skip)
         data = []
         for item in res:
             item.pop("_id")
             data.append(item)
-        return data
+        return {"total":total_count,"lines":data}
