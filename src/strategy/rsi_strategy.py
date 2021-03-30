@@ -15,3 +15,5 @@ class RsiStrategy(Strategy):
         self.name = "rsi"
         return
 
+   
+   
