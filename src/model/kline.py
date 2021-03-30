@@ -13,6 +13,13 @@ class Kline:
         self.db = mongo_client.fishfin
         return
 
+    def get_price(self,symbol,_type = "latest"):
+        line_name = "market."+symbol+".kline.1min"
+        res = self.db.kline.find({"name":line_name}).sort("ktime":-1).limit(1)
+        price = None
+        for item in res:
+            price = item["close"]
+        return price
 
     def get_data(self,symbol,period,page_size=20,page_no=1):
         skip = page_size * ( page_no - 1)

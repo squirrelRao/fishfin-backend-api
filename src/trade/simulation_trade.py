@@ -15,7 +15,23 @@ class SimulationTrade(Trade):
         self.name = "simulation" 
         return
 
-    #submit market transaction: buy-market, sell-market
-    def submit_market_transaction(self,symbol,amount,price,_type=None):
-        if _type is None:
-            return
+    #submit market transaction: buy/sell
+    def submit_market_transaction(self,user_id,symbol,amount,price,currency,trans_fee,_type="buy"):
+        order_id = self.create_order(user_id,amount,price,symbol,trans_fee,currency)
+        log_id = self.log(user_id,order_id,amount,price,symbol,currency,trans_fee,action="new")
+        base_change = 0 # symbol is btcusdt, base currency is btc , quote currency is usdt
+        quote_change = 0
+    
+        if _type == "buy":
+            base_change = amount
+            quote_change = 0 - amount * price - amount * price * trans_fee
+        elif _type == "sell":
+            base_change = 0 - amount
+            quote_change = amount * price - amount * price * trans_fee
+        
+        quote_currency = symbol.replace(currency,"")
+        db.user_simulation_currency.update({"user_id":user_id,"currency":currency},{"$inc":{"balance":base_change}})
+        db.user_simulation_currency.update({"user_id":user_id,"currency":quote_currency},{"$inc":{"balance":quote_change}})
+        self.finish_order(order_id)
+        self.log(user_id,order_id,amount,price,symbol,currency,trans_fee,action="finish",log_id=log_id)
+        return True
