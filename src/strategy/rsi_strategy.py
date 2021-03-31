@@ -28,15 +28,29 @@ class RsiStrategy(Strategy):
         
         symbol = quote_currency + base_currency
         kline = Kline()
+        
+        log_info = {"quote_currency":quote_currency,"base_currency":base_currency,"symbol":symbol,"period":period,"ktime":ktime,"limit_trade_count":limit_trade_count,"trade_name":trade_name,"period_count":period_count,"min_sell_rsi":self,min_sell_rsi,"max_buy_rsi":self.max_buy_rsi,"user_id":user_id}
+
+        _log_id = self.log(log_info)
+        log_info["log_id"] = _log_id
+
         #load data
         self.data = kline.get_ktime_period_data(symbol,peroid,self.period_count,ktime)
         prices = self.get_price_list("close")
         print(prices)
 
+        log_info["data"] = prices
+        log_info["data_type"] = "price"
+        self.log(log_info)
+
         #compute index
         rsi = ta.RSI(prices,period_count)
         print("rsi:"+str(rsi))
         
+        log_info["data"] = rsi
+        log_info["data_type"] = "rsi"
+        self.log(log_info)
+
         trade = None
         if trade_name == "simulation":
             trade = SimulationTrade()
@@ -59,5 +73,11 @@ class RsiStrategy(Strategy):
             amount = max_trade_count
         else:
             amount = limit_trade_count
+
+        log_info["data"] = amount
+        log_info["data_type"] = action
+        log_info["price"] = cur_price 
+        self.log(log_info)
+        
         trade.submit_market_transaction(user_id,symbol,amount,cur_price,quote_currency,trans_fee,ktime,action)
         return

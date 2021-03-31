@@ -48,7 +48,7 @@ class Strategy:
         return prices
 
     #quantization log
-    def log(self):
-        info = {}
+    def log(self,info):
+        info["update_time"] = time.time()
         _id = self.db.strategy_log.insert_one(info)
         return _id
