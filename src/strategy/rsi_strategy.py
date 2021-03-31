@@ -29,7 +29,7 @@ class RsiStrategy(Strategy):
         symbol = quote_currency + base_currency
         kline = Kline()
         
-        log_info = {"quote_currency":quote_currency,"base_currency":base_currency,"symbol":symbol,"period":period,"ktime":ktime,"limit_trade_count":limit_trade_count,"trade_name":trade_name,"period_count":period_count,"min_sell_rsi":self,min_sell_rsi,"max_buy_rsi":self.max_buy_rsi,"user_id":user_id}
+        log_info = {"quote_currency":quote_currency,"base_currency":base_currency,"symbol":symbol,"period":period,"ktime":ktime,"strategy":self.name,"limit_trade_count":limit_trade_count,"trade_name":trade_name,"period_count":period_count,"min_sell_rsi":self,min_sell_rsi,"max_buy_rsi":self.max_buy_rsi,"user_id":user_id}
 
         _log_id = self.log(log_info)
         log_info["log_id"] = _log_id
@@ -79,5 +79,5 @@ class RsiStrategy(Strategy):
         log_info["price"] = cur_price 
         self.log(log_info)
         
-        trade.submit_market_transaction(user_id,symbol,amount,cur_price,quote_currency,trans_fee,ktime,action)
+        trade.submit_market_transaction(user_id,symbol,amount,cur_price,quote_currency,trans_fee,ktime,self.name,action)
         return

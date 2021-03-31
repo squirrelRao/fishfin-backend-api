@@ -6,6 +6,7 @@ from common.mongo_client import mongo_client
 from common.net_client import net_client
 from bson import ObjectId 
 from bson import json_util
+from model.kline import Kline
 
 class Backtest:
 
@@ -13,5 +14,6 @@ class Backtest:
         self.db = mongo_client.fishfin
         return
 
-    def run(self):
+    def run(self,user_id,strategy,symbol,period,start_time,end_time):
+
         return

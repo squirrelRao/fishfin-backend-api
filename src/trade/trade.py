@@ -15,11 +15,11 @@ class Trade:
         return
 
     #new order
-    def create_order(self,user_id,amount,price,symbol,trans_fee,currency):
+    def create_order(self,user_id,amount,price,symbol,trans_fee,currency,strategy):
         order = self.db.simulation_trade_order
         if self.name not in ["simulation",""]:
             order = self.db.real_trade_order
-        info = {"name":"trade","user_id":user_id,"amount":amount,"price":price,"symbol":symbol,"trans_fee":trans_fee,"currency":currency,"status":0,"update_time":time.time()}
+        info = {"name":"trade","user_id":user_id,"amount":amount,"price":price,"strategy":strategy,"symbol":symbol,"trans_fee":trans_fee,"currency":currency,"status":0,"update_time":time.time()}
         _id = order.insert_one(order)
         return _id
 
@@ -31,11 +31,11 @@ class Trade:
         order.update({"_id":ObjectId(order_id)},{"$set":{"status":3}})
 
     #log trade
-    def log(self,user_id,order_id,amount,price,symbol,currency,trans_fee,base_currency_balance,quote_currency_balance,ktime,action="new",log_id=None):
+    def log(self,user_id,order_id,amount,price,symbol,currency,trans_fee,base_currency_balance,quote_currency_balance,ktime,strategy,action="new",log_id=None):
         log = self.db.simulation_trade_log
         if self.name not in ["simulation",""]:
             log = self.db.real_trade_log
-            info = {"name":"trade","user_id":user_id,"order_id":orde_id,"amount":amount,"price":price,"base_currency_balance":base_currency_balance,"quote_currency_balance":quote_currency_balance,"ktime":ktime,"symbol":symbol,"trans_fee":trans_fee,"currency":currency,"action":action,"update_time":time.time()}
+            info = {"name":"trade","strategy":strategy,"user_id":user_id,"order_id":orde_id,"amount":amount,"price":price,"base_currency_balance":base_currency_balance,"quote_currency_balance":quote_currency_balance,"ktime":ktime,"symbol":symbol,"trans_fee":trans_fee,"currency":currency,"action":action,"update_time":time.time()}
         if log_id is None:
             info["log_id"] = ""
             _id = log.insert_one(info)
@@ -46,6 +46,6 @@ class Trade:
             return _id
 
     #submit market transaction: buy-market, sell-market
-    def submit_market_transaction(self,symbol,amount,price,ktime,_type=None):
+    def submit_market_transaction(self,symbol,amount,price,ktime,strategy=None,_type=None):
         if _type is None:
             return
