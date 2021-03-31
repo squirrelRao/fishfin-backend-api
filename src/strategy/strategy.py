@@ -25,6 +25,20 @@ class Strategy:
         elif "mon" in period:
             return int(period.replace("week")) * 60 * 60 * 100 * 24 * 7 * 30
         return 0
+    
+    def get_max_action_amount(self,user_id,currency,price,trans_fee,account_type="simulation"):
+        tb = None
+        if account_type == "simulation":
+            tb = self.db.user_simulation_currency
+        else:
+            tb = None
+        info = tb.find_one({"user_id":user_id,"currency":currency})
+        balance = info["balance"]
+        max_amount = round(float(balance)/price * ( 1 - trans_fee),6)
+        return max_amount
+
+    def run(self,symbol,period,start_ktime,end_ktime):
+        return
 
     def get_price_list(self,name="close"):
         prices = list()
@@ -33,25 +47,8 @@ class Strategy:
                 prices.append(item[name])
         return prices
 
-    def load_kline_range_data(self,symbol,period,period_count=14,start_ktime=time.time(),end_ktime=time.time()):
-        self.data = list()
-        start_ktime = start_ktime - self.get_period_timestamp() * period_count
-        res = self.db.kline.find({"name":"market."+symbol+".kline."+period,"ktime":{"$gte":start_ktime,"$lte":end_ktime}}).sort("ktime",-1))
-        for item in res:
-            item.pop("_id")
-            self.data.append(item)
-        return self.data
-
-    def load_kline_data(self,symbol,peroid,period_count=14,ktime=time.time()):
-        self.data = list()
-        res = self.db.kline.find({"name":"market."+symbol+".kline."+period,"ktime":{"$lte":ktime}}).sort("ktime",-1).limit(period_count)
-        for item in res:
-            item.pop("_id")
-            self.data.append(item)
-        return self.data
-
     #quantization log
     def log(self):
         info = {}
-        _id = self.db.quantization_log.insert_one(info)
+        _id = self.db.strategy_log.insert_one(info)
         return _id

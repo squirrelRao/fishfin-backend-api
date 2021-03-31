@@ -16,7 +16,7 @@ class SimulationTrade(Trade):
         return
 
     #submit market transaction: buy/sell
-    def submit_market_transaction(self,user_id,symbol,amount,price,currency,trans_fee,ktime,_type="buy"):
+    def submit_market_transaction(self,user_id,symbol,amount,price,currency,trans_fee=0.002,ktime,_type="buy"):
         order_id = self.create_order(user_id,amount,price,symbol,trans_fee,currency)
         quote_currency = symbol.replace(currency,"")
 
