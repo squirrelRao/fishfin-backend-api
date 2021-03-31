@@ -22,9 +22,9 @@ class Kline:
         return price
 
 
-    def get_ktime_range_data(self,symbol,period,period_count=14,start_ktime=time.time(),end_ktime=time.time()):
+    def get_ktime_range_data(self,symbol,period,start_ktime=time.time(),end_ktime=time.time()):
         data = list()
-        start_ktime = start_ktime - self.get_period_timestamp() * period_count
+        #start_ktime = start_ktime - self.get_period_timestamp() * period_count
         res = self.db.kline.find({"name":"market."+symbol+".kline."+period,"ktime":{"$gte":start_ktime,"$lte":end_ktime}}).sort("ktime",-1))
         for item in res:
             item.pop("_id")
