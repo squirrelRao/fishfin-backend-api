@@ -6,7 +6,7 @@ from common.mongo_client import mongo_client
 from common.net_client import net_client
 from bson import ObjectId 
 from bson import json_util
-from trade import Trade
+from super_trade import Trade
 
 class HuobiTrade(Trade):
 

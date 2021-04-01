@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-import sys
+import sys,os
 import time
 sys.path.append("..")
 from common.mongo_client import mongo_client
 from common.net_client import net_client
 from bson import ObjectId 
 from bson import json_util
-from strategy import Strategy
 from model.kline import Kline
-from trade.simulation_trade import SimulationTrade
+from simulation_trade import SimulationTrade
+from super_strategy import Strategy
 import pandas as pd
 import numpy as np
 import talib as ta
@@ -28,12 +28,9 @@ class RsiStrategy(Strategy):
         
         symbol = quote_currency + base_currency
         kline = Kline()
-        
-        log_info = {"quote_currency":quote_currency,"base_currency":base_currency,"symbol":symbol,"period":period,"ktime":ktime,"strategy":self.name,"limit_trade_count":limit_trade_count,"trade_name":trade_name,"period_count":period_count,"min_sell_rsi":self,min_sell_rsi,"max_buy_rsi":self.max_buy_rsi,"user_id":user_id}
-
+        log_info = {"quote_currency":quote_currency,"base_currency":base_currency,"symbol":symbol,"period":period,"ktime":ktime,"strategy":self.name,"limit_trade_count":limit_trade_count,"trade_name":trade_name,"period_count":period_count,"min_sell_rsi":self.min_sell_rsi,"max_buy_rsi":self.max_buy_rsi,"user_id":user_id}
         _log_id = self.log(log_info)
         log_info["log_id"] = _log_id
-
         #load data
         self.data = kline.get_ktime_period_data(symbol,peroid,self.period_count,ktime)
         prices = self.get_price_list("close")

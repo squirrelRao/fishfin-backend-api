@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-import sys
+import sys,os
 import time
 sys.path.append("..")
+sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.getcwd())),"libs"))
 from common.mongo_client import mongo_client
 from common.net_client import net_client
 from bson import ObjectId 
 from bson import json_util
 from common.common_util import common_util
 from model.kline import Kline
-from strategy.rsi_strategy import RsiStrategy
+from libs.rsi_strategy import RsiStrategy
 
 class Backtest:
 

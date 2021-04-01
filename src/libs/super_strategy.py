@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys
+import os,sys
 import time
 sys.path.append("..")
 from common.mongo_client import mongo_client

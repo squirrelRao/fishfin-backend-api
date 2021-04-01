@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-import sys
+import sys,os
 import time
 sys.path.append("..")
 from common.mongo_client import mongo_client
 from common.net_client import net_client
 from bson import ObjectId 
 from bson import json_util
-from trade import Trade
+from super_trade import Trade
 
 class SimulationTrade(Trade):
 
@@ -16,7 +16,7 @@ class SimulationTrade(Trade):
         return
 
     #submit market transaction: buy/sell
-    def submit_market_transaction(self,user_id,symbol,amount,price,currency,trans_fee=0.002,ktime,strategy=None,_type="buy"):
+    def submit_market_transaction(self,user_id,symbol,amount,price,currency,trans_fee=0.002,ktime=time.time(),strategy=None,_type="buy"):
         order_id = self.create_order(user_id,amount,price,symbol,trans_fee,currency,strategy)
         quote_currency = symbol.replace(currency,"")
 

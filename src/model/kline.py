@@ -13,9 +13,9 @@ class Kline:
         self.db = mongo_client.fishfin
         return
 
-    def get_price(self,symbol,_type = "latest"):
-        line_name = "market."+symbol+".kline.1min"
-        res = self.db.kline.find({"name":line_name}).sort("ktime":-1).limit(1)
+    def get_price(self,symbol,period,_type = "latest"):
+        line_name = "market."+symbol+".kline."+period
+        res = self.db.kline.find({"name":line_name}).sort("ktime",-1).limit(1)
         price = None
         for item in res:
             price = item["close"]
@@ -25,7 +25,7 @@ class Kline:
     def get_ktime_range_data(self,symbol,period,start_ktime=time.time(),end_ktime=time.time()):
         data = list()
         #start_ktime = start_ktime - self.get_period_timestamp() * period_count
-        res = self.db.kline.find({"name":"market."+symbol+".kline."+period,"ktime":{"$gte":start_ktime,"$lte":end_ktime}}).sort("ktime",-1))
+        res = self.db.kline.find({"name":"market."+symbol+".kline."+period,"ktime":{"$gte":start_ktime,"$lte":end_ktime}}).sort("ktime",-1)
         for item in res:
             item.pop("_id")
             data.append(item)
