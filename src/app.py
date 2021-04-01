@@ -34,10 +34,11 @@ def get_backtest_result():
     period = data.get("period","")
     start_time = data.get("start_time","")
     end_time = data.get("end_time","")
+    strategy = data.get("strategy","rsi")
     start_time = common_util.string_to_timestamp(start_time)
     end_time = common_util.string_to_timestamp(end_time)
-    res = backtest.query(user_id,strategy,quote_currency,base_currency,period,start_time,end_time)
-    return {"rc":0,"data":rc}
+    data = backtest.query_result(user_id,strategy,quote_currency,base_currency,period,start_time,end_time)
+    return {"rc":0,"data":data}
 
 
 @app.route('/v1/kline/query',methods=['POST'])

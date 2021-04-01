@@ -45,14 +45,13 @@ class Backtest:
 
     def query_result(self,user_id,strategy,quote_currency,base_currency,period,start_time,end_time):
         symbol = quote_currency + base_currency
-        lines = kline.get_ktime_range_data(symbol,period,start_time,end_time)
+        lines = Kline().get_ktime_range_data(symbol,period,start_time,end_time)
         test_results = list()
         res = self.db.backtest.find({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"ktime":{"$lte":start_time,"$gte":end_time}})
         for item in res:
             item.pop("_id")
             test_results.append(item)
         st = self.db.user_strategy.find_one({"user_id":user_id,"strateg":strategy})
-        st.pop("_id")
         
         res = self.db.user_quantization_signal.find({"user_id":user_id,"strategy":strategy,"symbol":symbol,"peroid":period,"ktime":{"$lte":start_time,"$gte":end_time}})
         signals = []
@@ -60,7 +59,7 @@ class Backtest:
             item.pop("_id")
             signals.append(item)
 
-        data = {"user_id":user_id,"quote_currency":quote_curreny,"base_currency":base_currency,"period":period,"start_time":start_time,"end_time":end_time,"strategy":strategy,"ror":test_results,"kline":lines,"signal":signals}
+        data = {"user_id":user_id,"quote_currency":quote_currency,"base_currency":base_currency,"period":period,"start_time":start_time,"end_time":end_time,"strategy":strategy,"ror":test_results,"kline":lines,"signal":signals}
         return data
 
 
