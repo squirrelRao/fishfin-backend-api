@@ -23,6 +23,9 @@ class SimulationTrade(Trade):
         quote_currency_balance = self.db.user_simulation_currency.find_one({"user_id":user_id,"currency":quote_currency})
         base_currency_balance = self.db.user_simulation_currency.find_one({"user_id":user_id,"currency":currency})
 
+        quote_currency_balance = quote_currency_balance["balance"]
+        base_currency_balance = base_currency_balance["balance"]
+
         log_id = self.log(user_id,order_id,amount,price,symbol,currency,trans_fee,base_currency_balance,quote_currency_balance,ktime,strategy,action="new")
         base_change = 0 # symbol is btcusdt, base currency is btc , quote currency is usdt
         quote_change = 0
@@ -37,8 +40,8 @@ class SimulationTrade(Trade):
         base_currency_balance = base_currency_balance + base_change
         quote_currency_balance = quote_currency_balance + quote_change
 
-        db.user_simulation_currency.update({"user_id":user_id,"currency":currency},{"$inc":{"balance":base_currency_balance}})
-        db.user_simulation_currency.update({"user_id":user_id,"currency":quote_currency},{"$inc":{"balance":quote_currency_balance}})
+        self.db.user_simulation_currency.update({"user_id":user_id,"currency":currency},{"$inc":{"balance":base_currency_balance}})
+        self.db.user_simulation_currency.update({"user_id":user_id,"currency":quote_currency},{"$inc":{"balance":quote_currency_balance}})
         
         self.finish_order(order_id)
         self.log(user_id,order_id,amount,price,symbol,currency,trans_fee,base_currency_balance,quote_currency_balance,ktime,strategy,action="finish",log_id=log_id)

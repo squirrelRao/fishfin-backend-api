@@ -20,8 +20,8 @@ class Trade:
         if self.name not in ["simulation",""]:
             order = self.db.real_trade_order
         info = {"name":"trade","user_id":user_id,"amount":amount,"price":price,"strategy":strategy,"symbol":symbol,"trans_fee":trans_fee,"currency":currency,"status":0,"update_time":time.time()}
-        _id = order.insert_one(order)
-        return _id
+        res = order.insert_one(info)
+        return str(res.inserted_id)
 
     #update order
     def finish_order(self,order_id):
@@ -35,15 +35,16 @@ class Trade:
         log = self.db.simulation_trade_log
         if self.name not in ["simulation",""]:
             log = self.db.real_trade_log
-            info = {"name":"trade","strategy":strategy,"user_id":user_id,"order_id":orde_id,"amount":amount,"price":price,"base_currency_balance":base_currency_balance,"quote_currency_balance":quote_currency_balance,"ktime":ktime,"symbol":symbol,"trans_fee":trans_fee,"currency":currency,"action":action,"update_time":time.time()}
+        info = {"name":"trade","strategy":strategy,"user_id":user_id,"order_id":order_id,"amount":amount,"price":price,"base_currency_balance":base_currency_balance,"quote_currency_balance":quote_currency_balance,"ktime":ktime,"symbol":symbol,"trans_fee":trans_fee,"currency":currency,"action":action,"update_time":time.time()}
+        print(info)
         if log_id is None:
             info["log_id"] = ""
-            _id = log.insert_one(info)
-            return _id
+            res = log.insert_one(info)
+            return str(res.inserted_id)
         else:
             info["log_id"] = log_id
-            _id = log.insert_one(info)
-            return _id
+            res = log.insert_one(info)
+            return str(res.inserted_id)
 
     #submit market transaction: buy-market, sell-market
     def submit_market_transaction(self,symbol,amount,price,ktime,strategy=None,_type=None):

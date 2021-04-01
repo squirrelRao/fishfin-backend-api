@@ -32,36 +32,54 @@ class Backtest:
             st.run(user_id,quote_currency,base_currency,period,line["ktime"],limit_trade_count,trade_name="simulation")
 
         #compute rate of return
-        logs = self.db.simulation_trade_log.find({"symbol":symbol,"strategy":strategy,"user_id":user_id,"peroid":peroid,"action":"finish","ktime":{"$gte":start_time,"$lte":end_time}}).sort("ktime",-1)
+        logs = self.db.simulation_trade_log.find({"symbol":symbol,"strategy":strategy,"user_id":user_id,"action":"finish","ktime":{"$gte":start_time,"$lte":end_time}}).sort("ktime",-1)
         rates = list()
+        logs = list(logs)
         for index,log in enumerate(logs[1:]):
             pre = logs[index-1]
             current = log
+            print(log)
             pre_value = pre["price"] * pre["quote_currency_balance"] + pre["base_currency_balance"]
             current_value = current["price"] * current["quote_currency_balance"] + current["base_currency_balance"]
-            ror = round(float(current_value - pre_value)/pre_value * 100,2)
+            ror = round((float(current_value - pre_value)/pre_value * 100),2)
             self.db.backtest.update({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"ktime":current["ktime"]},{"$set":{"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"ktime":current["ktime"],"ror":ror,"trade_log_id":current["log_id"]}},upsert=True)
         return
 
     def query_result(self,user_id,strategy,quote_currency,base_currency,period,start_time,end_time):
         symbol = quote_currency + base_currency
         lines = Kline().get_ktime_range_data(symbol,period,start_time,end_time)
-        test_results = list()
-        res = self.db.backtest.find({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"ktime":{"$lte":start_time,"$gte":end_time}})
+        ror  = dict()
+        res = self.db.backtest.find({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"ktime":{"$lte":end_time,"$gte":start_time}})
         for item in res:
             item.pop("_id")
-            test_results.append(item)
-        st = self.db.user_strategy.find_one({"user_id":user_id,"strateg":strategy})
-        
-        res = self.db.user_quantization_signal.find({"user_id":user_id,"strategy":strategy,"symbol":symbol,"peroid":period,"ktime":{"$lte":start_time,"$gte":end_time}})
-        signals = []
+            ror[item["ktime"]] = item
+        st = self.db.user_strategy.find_one({"user_id":user_id,"strategy":strategy})
+        st.pop("_id")
+        res = self.db.user_quantization_signal.find({"user_id":user_id,"strategy":strategy,"symbol":symbol,"period":period,"ktime":{"$lte":end_time,"$gte":start_time}})
+        signals = dict()
         for item in res:
             item.pop("_id")
-            signals.append(item)
+            signals[item["ktime"]] = item
 
-        data = {"user_id":user_id,"quote_currency":quote_currency,"base_currency":base_currency,"period":period,"start_time":start_time,"end_time":end_time,"strategy":strategy,"ror":test_results,"kline":lines,"signal":signals}
+        for line in lines:
+            _time = line["ktime"]
+            if _time in ror:
+                line["rate_of_return"] = ror[_time]["ror"]
+                line["trade_log_id"] = ror[_time]["trade_log_id"]
+            if _time in signals:
+                line["advice"] = signals[_time]["singal"]
+
+        data = {"user_id":user_id,"quote_currency":quote_currency,"base_currency":base_currency,"period":period,"start_time":start_time,"end_time":end_time,"strategy":strategy,"back_result":lines,"strategy_detail":st}
         return data
 
+def clear_data():
+    db = mongo_client.fishfin
+    db.strategy_log.remove({})
+    db.user_quantization_signal.remove({})
+    db.simulation_trade_order.remove({})
+    db.backtest.remove({})
+    db.user_simulation_currency.update({"currency":"usdt"},{"$set":{"balance":1000}})
+    db.user_simulation_currency.update({"currency":"btc"},{"$set":{"balance":0}})
 
 def main():
     test = Backtest()
@@ -77,3 +95,7 @@ def main():
     print("start backtest")
     test.run(user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time)
     print("backtest end ")
+
+#main()
+
+#clear_data()

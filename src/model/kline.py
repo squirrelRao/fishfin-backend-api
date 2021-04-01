@@ -31,7 +31,7 @@ class Kline:
             data.append(item)
         return data
 
-    def get_ktime_period_data(self,symbol,peroid,period_count=14,ktime=time.time()):
+    def get_ktime_period_data(self,symbol,period,period_count=14,ktime=time.time()):
         data = list()
         res = self.db.kline.find({"name":"market."+symbol+".kline."+period,"ktime":{"$lte":ktime}}).sort("ktime",-1).limit(period_count)
         for item in res:

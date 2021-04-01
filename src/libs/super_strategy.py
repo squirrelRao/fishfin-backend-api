@@ -44,7 +44,7 @@ class Strategy:
         prices = list()
         for item in self.data:
             if name in item:
-                prices.append(item[name])
+                prices.append(float(item[name]))
         return prices
 
     #release quantization signal: buy, sell, keep
@@ -54,6 +54,8 @@ class Strategy:
 
     #quantization log
     def log(self,info):
-        info["update_time"] = time.time()
-        _id = self.db.strategy_log.insert_one(info)
-        return _id
+        log = info.copy()
+        log["update_time"] = time.time()
+        print(log)
+        res = self.db.strategy_log.insert_one(log)
+        return str(res.inserted_id)
