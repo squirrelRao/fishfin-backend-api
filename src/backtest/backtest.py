@@ -6,6 +6,7 @@ from common.mongo_client import mongo_client
 from common.net_client import net_client
 from bson import ObjectId 
 from bson import json_util
+from common.common_util import common_util
 from model.kline import Kline
 from strategy.rsi_strategy import RsiStrategy
 
@@ -55,3 +56,17 @@ class Backtest:
         return data
 
 
+def main():
+    test = Backtest()
+    #user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time
+    user_id = "60607bd63a7c1d3802e86243"
+    strategy = "rsi"
+    quote_currency = "btc"
+    base_currency = "usdt"
+    period = "1min"
+    limit_trade_count = 1000
+    start_time = common_util.string_to_timestamp("2021-03-29 20:00:00")
+    end_time = common_util.string_to_timestamp("2021-03-30 00:00:00")
+    print("start backtest")
+    test.run(user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time)
+    print("backtest end ")

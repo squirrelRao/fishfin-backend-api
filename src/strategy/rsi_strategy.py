@@ -58,26 +58,27 @@ class RsiStrategy(Strategy):
             trade = None
 
         #execute transaction action
-        action = None
+        action = "keep"
         if rsi >= min_sell_rsi:
             action = "sell"
         elif rsi <= max_bug_rsi:
             action = "buy"
         
-        #submit action
-        cur_price = prices[0]
-        trans_fee = 0.002
-        max_trade_count = self.get_max_action_amount(user_id,quote_currency,cur_price,trans_fee,trade_name)
-        amount = 0
-        if max_trade_count < limit_trade_count:
-            amount = max_trade_count
-        else:
-            amount = limit_trade_count
+        self.signal(user_id,symbol,period,strategy,ktime,rsi,action)
+        if action in ["buy","sell"]:
+            #submit action
+            cur_price = prices[0]
+            trans_fee = 0.002
+            max_trade_count = self.get_max_action_amount(user_id,quote_currency,cur_price,trans_fee,trade_name)
+            amount = 0
+            if max_trade_count < limit_trade_count:
+                amount = max_trade_count
+            else:
+                amount = limit_trade_count
+            trade.submit_market_transaction(user_id,symbol,amount,cur_price,quote_currency,trans_fee,ktime,self.name,action)
 
         log_info["data"] = amount
         log_info["data_type"] = action
         log_info["price"] = cur_price 
         self.log(log_info)
-        
-        trade.submit_market_transaction(user_id,symbol,amount,cur_price,quote_currency,trans_fee,ktime,self.name,action)
         return
