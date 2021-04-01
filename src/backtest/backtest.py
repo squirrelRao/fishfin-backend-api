@@ -52,7 +52,14 @@ class Backtest:
             test_results.append(item)
         st = self.db.user_strategy.find_one({"user_id":user_id,"strateg":strategy})
         st.pop("_id")
-        data = {"user_id":user_id,"quote_currency":quote_curreny,"base_currency":base_currency,"period":period,"start_time":start_time,"end_time":end_time,"strategy":strategy,"ror":test_results,"kline":lines}
+        
+        res = self.db.user_quantization_signal.find({"user_id":user_id,"strategy":strategy,"symbol":symbol,"peroid":period,"ktime":{"$lte":start_time,"$gte":end_time}})
+        signals = []
+        for item in res:
+            item.pop("_id")
+            signals.append(item)
+
+        data = {"user_id":user_id,"quote_currency":quote_curreny,"base_currency":base_currency,"period":period,"start_time":start_time,"end_time":end_time,"strategy":strategy,"ror":test_results,"kline":lines,"signal":signals}
         return data
 
 
