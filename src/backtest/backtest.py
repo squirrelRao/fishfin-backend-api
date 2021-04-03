@@ -74,12 +74,13 @@ class Backtest:
 
 def clear_data():
     db = mongo_client.fishfin
-    db.strategy_log.remove({})
-    db.user_quantization_signal.remove({})
-    db.simulation_trade_order.remove({})
-    db.backtest.remove({})
-    db.user_simulation_currency.update({"currency":"usdt"},{"$set":{"balance":1000}})
-    db.user_simulation_currency.update({"currency":"btc"},{"$set":{"balance":0}})
+    db.strategy_log.delete_many({})
+    db.user_quantization_signal.delete_many({})
+    db.simulation_trade_order.delete_many({})
+    db.simulation_trade_log.delete_many({})
+    db.backtest.delete_many({})
+    db.user_simulation_currency.update_one({"currency":"usdt"},{"$set":{"balance":1000}})
+    db.user_simulation_currency.update_one({"currency":"btc"},{"$set":{"balance":0}})
 
 def main():
     test = Backtest()
@@ -91,11 +92,11 @@ def main():
     period = "1min"
     limit_trade_count = 1000
     start_time = common_util.string_to_timestamp("2021-03-29 20:00:00")
-    end_time = common_util.string_to_timestamp("2021-03-30 00:00:00")
+    end_time = common_util.string_to_timestamp("2021-03-29 20:00:00")
     print("start backtest")
     test.run(user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time)
     print("backtest end ")
 
-#main()
+main()
 
 #clear_data()

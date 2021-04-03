@@ -29,13 +29,17 @@ class SimulationTrade(Trade):
         log_id = self.log(user_id,order_id,amount,price,symbol,currency,trans_fee,base_currency_balance,quote_currency_balance,ktime,strategy,action="new")
         base_change = 0 # symbol is btcusdt, base currency is btc , quote currency is usdt
         quote_change = 0
-    
-        if _type == "buy":
-            base_change = amount
-            quote_change = 0 - amount * price - amount * price * trans_fee
-        elif _type == "sell":
-            base_change = 0 - amount
-            quote_change = amount * price - amount * price * trans_fee
+        
+        if _type == "buy":#use usdt buy btc
+            if amount > float(base_currency_balance)/price - float(base_currency_balance)/price * trans_fee:
+                amount = float(base_currency_balance)/price
+            base_change = 0 - amount * price - amount * price * trans_fee
+            quote_change = amount
+        elif _type == "sell":#sell btc get usdt
+            if amount > quote_currency_balance - float(quote_currency_balance) * trans_fee:
+                amount = quote_currency_balance
+            base_change = amount * price - amount * price * trans_fee
+            quote_change = 0 - amount
         
         base_currency_balance = base_currency_balance + base_change
         quote_currency_balance = quote_currency_balance + quote_change
