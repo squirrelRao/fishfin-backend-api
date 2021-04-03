@@ -15,7 +15,7 @@ class Kline:
 
     def get_price(self,symbol,period,_type = "latest"):
         line_name = "market."+symbol+".kline."+period
-        res = self.db.kline.find({"name":line_name}).sort("ktime",-1).limit(1)
+        res = self.db.kline.find({"name":line_name}).sort("ktime",1).limit(1)
         price = None
         for item in res:
             price = item["close"]
@@ -25,7 +25,7 @@ class Kline:
     def get_ktime_range_data(self,symbol,period,start_ktime=time.time(),end_ktime=time.time()):
         data = list()
         #start_ktime = start_ktime - self.get_period_timestamp() * period_count
-        res = self.db.kline.find({"name":"market."+symbol+".kline."+period,"ktime":{"$gte":start_ktime,"$lte":end_ktime}}).sort("ktime",-1)
+        res = self.db.kline.find({"name":"market."+symbol+".kline."+period,"ktime":{"$gte":start_ktime,"$lte":end_ktime}}).sort("ktime",1)
         for item in res:
             item.pop("_id")
             data.append(item)
@@ -33,7 +33,7 @@ class Kline:
 
     def get_ktime_period_data(self,symbol,period,period_count=14,ktime=time.time()):
         data = list()
-        res = self.db.kline.find({"name":"market."+symbol+".kline."+period,"ktime":{"$lte":ktime}}).sort("ktime",-1).limit(period_count)
+        res = self.db.kline.find({"name":"market."+symbol+".kline."+period,"ktime":{"$lte":ktime}}).sort("ktime",1).limit(period_count)
         for item in res:
             item.pop("_id")
             data.append(item)
@@ -44,7 +44,7 @@ class Kline:
         name = "market."+symbol+".kline."+period
         query = {"name":name}
         total_count = self.db.kline.count(query)
-        res = self.db.kline.find(query).sort("ktime",-1).limit(page_size).skip(skip)
+        res = self.db.kline.find(query).sort("ktime",1).limit(page_size).skip(skip)
         data = []
         for item in res:
             item.pop("_id")
