@@ -38,7 +38,6 @@ class Backtest:
         for index,log in enumerate(logs[1:]):
             pre = logs[index-1]
             current = log
-            print(log)
             pre_value = pre["price"] * pre["quote_currency_balance"] + pre["base_currency_balance"]
             current_value = current["price"] * current["quote_currency_balance"] + current["base_currency_balance"]
             ror = round((float(current_value - pre_value)/pre_value * 100),2)
@@ -47,7 +46,7 @@ class Backtest:
             self.db.backtest.update({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"ktime":current["ktime"]},{"$set":{"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"ktime":current["ktime"],"ror":ror,"quote_currency":quote_currency,"quote_currency_balance":quote_currency_balance,"base_currency":base_currency,"base_currency_balance":base_currency_balance,"trade_log_id":current["log_id"]}},upsert=True)
         return
 
-    def query_result(self,user_id,strategy,quote_currency,base_currency,period,start_time,end_time,page_size,page_no):
+    def query_result(self,user_id,strategy,quote_currency,base_currency,period,start_time,end_time,action,page_size,page_no):
         symbol = quote_currency + base_currency
         lines = Kline().get_ktime_range_data(symbol,period,start_time,end_time)
         ror  = dict()
@@ -75,7 +74,12 @@ class Backtest:
             if _time in signals:
                 line["advice"] = signals[_time]["singal"]
                 line["advice_trade_amount"] = signals[_time]["trade_amount"]
-
+                line["rsi"] = signals[_time]["data"]
+        _lines = list()
+        for _line in lines:
+            if _line["advice"] in action:
+                _lines.append(_line)
+        lines = _lines
         if len(lines) >= page_size * page_no:
             lines = lines[page_size * ( page_no - 1) : page_size * page_no]
         data = {"user_id":user_id,"quote_currency":quote_currency,"base_currency":base_currency,"period":period,"start_time":start_time,"end_time":end_time,"strategy":strategy,"back_result":lines,"strategy_detail":st}
@@ -92,17 +96,17 @@ def clear_data():
     db.user_simulation_currency.update_one({"currency":"btc"},{"$set":{"balance":0}})
 
 def main():
-    clear_data()
+    #clear_data()
     test = Backtest()
     #user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time
     user_id = "60607bd63a7c1d3802e86243"
     strategy = "rsi"
     quote_currency = "btc"
     base_currency = "usdt"
-    period = "1min"
+    period = "1min"#1min, 5min, 15min, 30min, 60min, 4hour, 1day, 1mon, 1week, 1year
     limit_trade_count = 1000
     start_time = common_util.string_to_timestamp("2021-03-28 00:00:00")
-    end_time = common_util.string_to_timestamp("2021-04-01 23:59:00")
+    end_time = common_util.string_to_timestamp("2021-04-02 23:59:00")
     print("start backtest")
     test.run(user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time)
     print("backtest end ")
