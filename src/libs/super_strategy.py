@@ -48,8 +48,8 @@ class Strategy:
         return prices
 
     #release quantization signal: buy, sell, keep
-    def signal(self,user_id,symbol,period,strategy,ktime,data,signal):
-        self.db.user_quantization_signal.update({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"ktime":ktime},{"$set":{"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"ktime":ktime,"data":data,"singal":signal}},upsert=True)
+    def signal(self,user_id,symbol,period,strategy,ktime,data,trade_amount,signal):
+        self.db.user_quantization_signal.update({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"ktime":ktime},{"$set":{"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"trade_amount":trade_amount,"ktime":ktime,"data":data,"singal":signal}},upsert=True)
         return
 
     #quantization log

@@ -35,9 +35,11 @@ def get_backtest_result():
     start_time = data.get("start_time","")
     end_time = data.get("end_time","")
     strategy = data.get("strategy","rsi")
+    page_size = data.get("page_size",30)
+    page_no = data.get("page_no",1)
     start_time = common_util.string_to_timestamp(start_time)
     end_time = common_util.string_to_timestamp(end_time)
-    data = backtest.query_result(user_id,strategy,quote_currency,base_currency,period,start_time,end_time)
+    data = backtest.query_result(user_id,strategy,quote_currency,base_currency,period,start_time,end_time,page_size,page_no)
     return {"rc":0,"data":data}
 
 

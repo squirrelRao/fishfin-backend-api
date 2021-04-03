@@ -47,7 +47,7 @@ class Backtest:
             self.db.backtest.update({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"ktime":current["ktime"]},{"$set":{"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"ktime":current["ktime"],"ror":ror,"quote_currency":quote_currency,"quote_currency_balance":quote_currency_balance,"base_currency":base_currency,"base_currency_balance":base_currency_balance,"trade_log_id":current["log_id"]}},upsert=True)
         return
 
-    def query_result(self,user_id,strategy,quote_currency,base_currency,period,start_time,end_time):
+    def query_result(self,user_id,strategy,quote_currency,base_currency,period,start_time,end_time,page_size,page_no):
         symbol = quote_currency + base_currency
         lines = Kline().get_ktime_range_data(symbol,period,start_time,end_time)
         ror  = dict()
@@ -74,7 +74,10 @@ class Backtest:
                 line["base_currency_balance"] = ror[_time]["base_currency_balance"]
             if _time in signals:
                 line["advice"] = signals[_time]["singal"]
+                line["advice_trade_amount"] = signals[_time]["trade_amount"]
 
+        if len(lines) >= page_size * page_no:
+            lines = lines[page_size * ( page_no - 1) : page_size * page_no]
         data = {"user_id":user_id,"quote_currency":quote_currency,"base_currency":base_currency,"period":period,"start_time":start_time,"end_time":end_time,"strategy":strategy,"back_result":lines,"strategy_detail":st}
         return data
 
@@ -98,8 +101,8 @@ def main():
     base_currency = "usdt"
     period = "1min"
     limit_trade_count = 1000
-    start_time = common_util.string_to_timestamp("2021-03-29 20:00:00")
-    end_time = common_util.string_to_timestamp("2021-03-29 23:00:00")
+    start_time = common_util.string_to_timestamp("2021-03-28 00:00:00")
+    end_time = common_util.string_to_timestamp("2021-04-01 23:59:00")
     print("start backtest")
     test.run(user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time)
     print("backtest end ")

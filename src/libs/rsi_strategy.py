@@ -64,7 +64,6 @@ class RsiStrategy(Strategy):
         elif rsi <= self.max_buy_rsi:
             action = "buy"
         print(action) 
-        self.signal(user_id,symbol,period,self.name,ktime,rsi,action)
         amount = 0
         cur_price = prices[0]
         trans_fee = 0.002
@@ -75,11 +74,13 @@ class RsiStrategy(Strategy):
                 amount = max_trade_count
             else:
                 amount = limit_trade_count
+            self.signal(user_id,symbol,period,self.name,ktime,rsi,amount,action)
             trade.submit_market_transaction(user_id,symbol,amount,cur_price,quote_currency,trans_fee,ktime,self.name,action)
         else:
+            self.signal(user_id,symbol,period,self.name,ktime,rsi,0,action)
             quote_currency_balance = self.db.user_simulation_currency.find_one({"user_id":user_id,"currency":quote_currency})["balance"]
             base_currency_balance = self.db.user_simulation_currency.find_one({"user_id":user_id,"currency":base_currency})["balance"]
-            trade.log(user_id,"keep_log",amount,cur_price,symbol,quote_currency,trans_fee,base_currency_balance,quote_currency_balance,ktime,self.name,action="finish",log_id="")
+            trade.log(user_id,"keep_log",0,cur_price,symbol,quote_currency,trans_fee,base_currency_balance,quote_currency_balance,ktime,self.name,action="finish",log_id="")
         log_info["data"] = amount
         log_info["data_type"] = action
         log_info["price"] = cur_price 
