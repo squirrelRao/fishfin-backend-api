@@ -9,6 +9,7 @@ from bson import ObjectId
 from bson import json_util
 from common.common_util import common_util
 from model.kline import Kline
+from model.task import Task
 from libs.rsi_strategy import RsiStrategy
 
 class Backtest:
@@ -16,6 +17,15 @@ class Backtest:
     def __init__(self):
         self.db = mongo_client.fishfin
         return
+
+    def run_task(self):
+        task = Task()
+        task = task.get_waiting_task()
+        if task is None:
+            return
+        task.update_status(task["task_id"],1)
+        self.run(task["user_id"],task["strategy"],task["quote_currency"],task["base_currency"],task["period"],task["limit_trade_count"],task["start_time"],task["end_time"])
+        task.update_status(task["task_id"],2)
 
     def run(self,user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time):
         
@@ -94,6 +104,9 @@ def clear_data():
     db.backtest.delete_many({})
     db.user_simulation_currency.update_one({"currency":"usdt"},{"$set":{"balance":1000}})
     db.user_simulation_currency.update_one({"currency":"btc"},{"$set":{"balance":0}})
+
+
+
 
 def main():
     #clear_data()

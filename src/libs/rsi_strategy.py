@@ -42,7 +42,6 @@ class RsiStrategy(Strategy):
         self.log(log_info)
 
         #compute index
-        print(prices)
         rsi = ta.RSI(np.array(prices),self.period_count)
         rsi = round(rsi[len(rsi)-1],6)
         print("rsi:"+str(rsi))
@@ -65,7 +64,7 @@ class RsiStrategy(Strategy):
             action = "buy"
         print(action) 
         amount = 0
-        cur_price = prices[0]
+        cur_price = prices[-1]
         trans_fee = 0.002
         if action in ["buy","sell"]:
             #submit action

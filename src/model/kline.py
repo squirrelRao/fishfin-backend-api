@@ -15,7 +15,7 @@ class Kline:
 
     def get_price(self,symbol,period,_type = "latest"):
         line_name = "market."+symbol+".kline."+period
-        res = self.db.kline.find({"name":line_name}).sort("ktime",1).limit(1)
+        res = self.db.kline.find({"name":line_name}).sort("ktime",-1).limit(1)
         price = None
         for item in res:
             price = item["close"]
