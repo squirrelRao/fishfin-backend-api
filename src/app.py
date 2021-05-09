@@ -22,6 +22,47 @@ def hello():
     return 'hello water laker'
 
 
+@app.route('/v1/regist',methods=['POST'])
+def regist():
+    data = request.get_data()
+    data = json.loads(data)
+    phone = data.get("phone","")
+    name = data.get("name","")
+    invite_code = data.get("invite_code","")
+    db = mongo_client.fishfin
+    _codes = [""]
+    _user = db.user.find_one({"phone":phone})
+    if _user is not None:
+        return {"rc":-1,"msg":"registed"}
+    elif invite_code not in _codes:
+        return {"rc":-2,"msg":"invite_code is invalid"}
+    else:
+        db.user.insert({"phone":phone,"name":name,"invite_code":invite_code,"update_time":time.time()})
+        return {"rc":0}
+
+@app.route('/v1/login',methods=['POST'])
+def login():
+    data = request.get_data()
+    data = json.loads(data)
+    phone = data.get("phone","")
+    code = data.get("code","")
+    db = mongo_client.fishfin
+    _user = db.user.find_one({"phone":phone})
+    _name = _user["name"]
+    if _name is None or _name == "":
+        _name = _user["phone"][0:3]+"****"+_user["phone"][-4:]
+    if _user is not None and code is not None:
+        return {"rc":0,"data":{"user_id":str(_user["_id"]),"name":_name}}
+    return {"rc":-1}
+
+@app.route('/v1/logout',methods=['POST'])
+def logout():
+    data = request.get_data()
+    data = json.loads(data)
+    phone = data.get("phone","")
+    return {"rc":0}
+
+
 @app.route('/v1/backtest/query',methods=['POST'])
 def get_backtest_result():
     data = request.get_data()
