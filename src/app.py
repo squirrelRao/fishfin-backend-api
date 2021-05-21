@@ -121,8 +121,10 @@ def get_focus_data():
     page_size = data.get("page_size",10)
     page_no = data.get("page_no",1)
     data = kline.get_kline_strategy(user_id,period,"rsi")
-    logger.info(data)
-    rs = {"rc":0,"data":data}
+    count = len(data)
+    start_index = page_size * ( page_no - 1 )
+    data = data[start_index:page_size+start_index]
+    rs = {"rc":0,"data":data,"count":count}
     return rs
 
 @app.route('/v1/kline/query',methods=['POST'])
