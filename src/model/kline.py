@@ -12,6 +12,33 @@ class Kline:
     def __init__(self):
         self.db = mongo_client.fishfin
         return
+    
+    def get_kline_strategy(self,user_id,period,_strategy="rsi"):
+        data = []
+        watch = list(self.db.user_quantization.find({"status":1,"user_id":user_id}))
+        for item in watch:
+            symbol = item["symbol"]
+            open_signal = item["open_signal"]
+            strategy = self.db.user_strategy.find_one({"user_id":user_id,"strategy":_strategy,"symbol":symbol})
+            strategy["_id"] = str(strategy["_id"])
+            signal = self.db.user_quantization_signal.find({"user_id":user_id,"strategy":strategy,"symbol":symbol,"period":period}).sort("ktime",-1).limit(1)
+            _signal = None
+            for s in signal:
+                _signal = s
+                _signal["_id"] = str(_signal["_id"])
+            line_name = "market."+symbol+".kline."+period
+            kline = None
+            if _signal is None:
+                klines = self.db.kline.find({"name":line_name}).sort("ktime",-1).limit(1)
+                for k in klines:
+                    kline = k
+            else:
+                kline = self.db.kline.find_one({"ktime":_signal["ktime"],"name":line_name})
+            kline["_id"] = str(kline["_id"])
+            _data = {"symbol":symbol,"period":period,"kline":kline,"signal":_signal,"strategy":strategy,"ktime":kline["ktime"]}
+            data.append(_data)
+        return data
+
 
     def get_price(self,symbol,period,_type = "latest"):
         line_name = "market."+symbol+".kline."+period
@@ -55,3 +82,4 @@ class Kline:
             item.pop("_id")
             data.append(item)
         return {"total":total_count,"lines":data}
+

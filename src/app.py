@@ -111,6 +111,19 @@ def get_currencys():
     rs = {"rc":0,"data":data}
     return json.loads(json_util.dumps(rs))
 
+@app.route('/v1/focus/data',methods=['POST'])
+def get_focus_data():
+    data = request.get_data()
+    data = json.loads(data)
+    kline = Kline()
+    user_id = data.get("user_id","")
+    period = data.get("period","")
+    page_size = data.get("page_size",10)
+    page_no = data.get("page_no",1)
+    data = kline.get_kline_strategy(user_id,period,"rsi")
+    logger.info(data)
+    rs = {"rc":0,"data":data}
+    return rs
 
 @app.route('/v1/kline/query',methods=['POST'])
 def get_kline():
