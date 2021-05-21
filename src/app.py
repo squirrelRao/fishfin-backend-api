@@ -139,11 +139,14 @@ def add_watch_symbol():
     currency = data.get("currency","")
     quote = data.get("quote","usdt")
     db = mongo_client.fishfin
-    db.user_quantization.insert({"user_id":user_id,"symbol":currency+quote,"open_signal":1,"open_trade":0,"status":1})
+    symbol = currency + quote
+    db.user_quantization.update({"user_id":user_id,"symbol":symbol},{"$set":{"user_id":user_id,"symbol":symbol,"open_signal":1,"open_trade":0,"status":1}},upsert=True)
+    db.user_strategy.update({"user_id":user_id,"symbol":symbol},{"$set":{"user_id":user_id,"symbol":symbol,"strategy" : "rsi", "max_sell_rsi" : 30, "min_buy_rsi" : 70}},upsert=True)
     return {"rc":0}
 
 @app.route('/v1/symbol/watch/list',methods=['GET'])
 def get_symbol_watch_list():
+    data = request.get_data()
     user = User()
     symbols = user.get_quantization_symbols()
     return {"rc":0,"data":symbols}
