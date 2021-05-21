@@ -131,6 +131,17 @@ def get_trade_basic_info():
     rs = {"rc":0,"data":{"market_status":market_status,"currency_count":len(currency),"symbol_count":len(symbol)}}
     return json.loads(json_util.dumps(rs))
 
+@app.route('/v1/symbol/watch/add',methods=['POST'])
+def add_watch_symbol():
+    data = request.get_data()
+    data = json.loads(data)
+    user_id = data.get("user_id","")
+    currency = data.get("currency","")
+    quote = data.get("quote","usdt")
+    db = mongo_client.fishfin
+    db.user_quantization.insert({"user_id":user_id,"symbol":currency+quote,"open_signal":1,"open_trade":0,"status":1})
+    return {"rc":0}
+
 @app.route('/v1/symbol/watch/list',methods=['GET'])
 def get_symbol_watch_list():
     user = User()
