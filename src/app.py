@@ -179,6 +179,8 @@ def update_strategy():
     buy_rsi = data.get("min_buy_rsi",0)
     sale_rsi = data.get("max_sell_rsi",0)
     db = mongo_client.fishfin
+    logger.info({"user_id":user_id,"symbol":symbol,"strategy":"rsi"})
+    logger.info({"min_buy_rsi":buy_rsi,"max_sell_rsi":sale_rsi})
     db.user_strategy.update({"user_id":user_id,"symbol":symbol,"strategy":"rsi"},{"$set":{"min_buy_rsi":buy_rsi,"max_sell_rsi":sale_rsi}})
     return {"rc":0}
 
