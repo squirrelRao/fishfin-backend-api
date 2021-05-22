@@ -17,6 +17,7 @@ class Kline:
         data = []
         watch = list(self.db.user_quantization.find({"status":1,"user_id":user_id}))
         for item in watch:
+            item["_id"] = str(item["_id"])
             symbol = item["symbol"]
             open_signal = item["open_signal"]
             strategy = self.db.user_strategy.find_one({"user_id":user_id,"strategy":_strategy,"symbol":symbol})
@@ -35,7 +36,7 @@ class Kline:
             else:
                 kline = self.db.kline.find_one({"ktime":_signal["ktime"],"name":line_name})
             kline["_id"] = str(kline["_id"])
-            _data = {"symbol":symbol,"period":period,"kline":kline,"signal":_signal,"strategy":strategy,"ktime":kline["ktime"]}
+            _data = {"symbol":symbol,"period":period,"watch":item,"kline":kline,"signal":_signal,"strategy":strategy,"ktime":kline["ktime"]}
             data.append(_data)
         return data
 

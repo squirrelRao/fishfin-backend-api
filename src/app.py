@@ -104,7 +104,7 @@ def get_currencys():
     data = []
     for item in res:
         _item =  {"currency":item["base-currency"],"is_watch":0}
-        watch = db.user_quantization.find_one({"user_id":user_id,"symbol":item["base-currency"]+"usdt"})
+        watch = db.user_quantization.find_one({"user_id":user_id,"symbol":item["base-currency"]+"usdt","status":1})
         if watch is not None:
             _item["is_watch"] = 1
         data.append(_item)
@@ -145,6 +145,42 @@ def get_trade_basic_info():
     
     rs = {"rc":0,"data":{"market_status":market_status,"currency_count":len(currency),"symbol_count":len(symbol)}}
     return json.loads(json_util.dumps(rs))
+
+@app.route('/v1/symbol/watch/remove',methods=['POST'])
+def remove_watch_symbol():
+    data = request.get_data()
+    data = json.loads(data)
+    user_id = data.get("user_id","")
+    symbol = data.get("symbol","")
+    db = mongo_client.fishfin
+    db.user_quantization.update({"user_id":user_id,"symbol":symbol},{"$set":{"status":0}})
+    return {"rc":0}
+
+@app.route('/v1/symbol/watch/signal',methods=['POST'])
+def update_signal_status():
+    data = request.get_data()
+    data = json.loads(data)
+    user_id = data.get("user_id","")
+    symbol = data.get("symbol","")
+    action = data.get("action",0)
+    db = mongo_client.fishfin
+    rs = db.user_quantization.update({"user_id":user_id,"symbol":symbol},{"$set":{"open_signal":action}})
+    logger.info(rs)
+    return {"rc":0}
+
+
+@app.route('/v1/strategy/update',methods=['POST'])
+def update_strategy():
+    data = request.get_data()
+    data = json.loads(data)
+    user_id = data.get("user_id","")
+    symbol = data.get("symbol","")
+    strategy = data.get("strategy","rsi")
+    buy_rsi = data.get("min_buy_rsi",0)
+    sale_rsi = data.get("max_sell_rsi",0)
+    db = mongo_client.fishfin
+    db.user_strategy.update({"user_id":user_id,"symbol":symbol,"strategy":"rsi"},{"$set":{"min_buy_rsi":buy_rsi,"max_sell_rsi":sale_rsi}})
+    return {"rc":0}
 
 @app.route('/v1/symbol/watch/add',methods=['POST'])
 def add_watch_symbol():
