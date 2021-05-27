@@ -22,7 +22,7 @@ class Kline:
             open_signal = item["open_signal"]
             strategy = self.db.user_strategy.find_one({"user_id":user_id,"strategy":_strategy,"symbol":symbol})
             strategy["_id"] = str(strategy["_id"])
-            signal = self.db.user_quantization_signal.find({"user_id":user_id,"strategy":strategy,"symbol":symbol,"period":period}).sort("ktime",-1).limit(1)
+            signal = self.db.user_quantization_signal.find({"user_id":user_id,"strategy":_strategy,"symbol":symbol,"period":period}).sort("ktime",-1).limit(1)
             _signal = None
             for s in signal:
                 _signal = s
