@@ -29,7 +29,7 @@ class Kline:
                 _signal["_id"] = str(_signal["_id"])
             line_name = "market."+symbol+".kline."+period
             kline = None
-            if _signal is None:
+            if _signal is None or time.time() - _signal["ktime"] > 1000 * 60:
                 klines = self.db.kline.find({"name":line_name}).sort("ktime",-1).limit(1)
                 for k in klines:
                     kline = k
