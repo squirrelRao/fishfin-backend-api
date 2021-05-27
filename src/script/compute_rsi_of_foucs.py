@@ -26,12 +26,18 @@ def compute_focus_rsi():
     for user in users:
         user_id = str(user["_id"])
         for period in periods:
-            _focus = kline.get_kline_strategy(user_id,period,"rsi")
-            for focus in _focus:
-                print(user_id+":"+period+":"+focus["symbol"]+":"+common_util.timestamp_to_string(focus["ktime"]))
-                symbol = focus["symbol"]
-                ktime = focus["ktime"]
-                user_id = focus["strategy"]["user_id"]
+            watch = list(db.user_quantization.find({"status":1,"user_id":user_id}))
+            for item in watch:
+                symbol = item["symbol"]
+                line_name = "market."+symbol+".kline."+period
+                klines = db.kline.find({"name":line_name}).sort("ktime",-1).limit(1)
+                kline = None
+                for k in klines:
+                    kline = k
+                if kline is None:
+                    continue
+                ktime = kline["ktime"]
+                print(user_id+":"+period+":"+symbol+":"+common_util.timestamp_to_string(kline["ktime"]))
                 base_currency = "usdt"
                 quote_currency = symbol.replace("usdt","") 
                 strategy.run(user_id,quote_currency,base_currency,period,ktime,5000,"rsi")
