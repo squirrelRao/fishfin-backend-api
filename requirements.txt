@@ -4,3 +4,6 @@ gevent
 numpy
 pandas
 ta-lib
+aliyun-python-sdk-core
+aliyun-python-sdk-ecs
+aliyun-python-sdk-dysmsapi==2.1.1

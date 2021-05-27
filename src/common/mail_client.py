@@ -1,21 +1,22 @@
 # coding=UTF-8
 import time
 import sys
-reload(sys)
-sys.setdefaultencoding('utf8')
 from bson.objectid import ObjectId
-import urllib2
 import json
 import datetime
 import smtplib
-from email.MIMEText import MIMEText
-from email.MIMEMultipart import MIMEMultipart
-DEFAULT_SMTP = "smtp.exmail.qq.com"
+import email
+import email.utils
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+DEFAULT_SMTP = "smtp.163.com"
 DEFAULT_PORT = 465
+DEFAULT_MAIL = "hqraop@163.com"
+DEFAULT_PWD = "TJBXMTEIFYSEPUIJ"
 
 class MailClient:
 
-    def __init__(self,email,pwd,smtp=DEFAULT_SMTP,port=DEFAULT_PORT):
+    def __init__(self,email=DEFAULT_MAIL,pwd=DEFAULT_PWD,smtp=DEFAULT_SMTP,port=DEFAULT_PORT):
         self.from_addr = email
         self.pwd = pwd
         self.smtp = smtp
@@ -33,7 +34,7 @@ class MailClient:
 
     def sendMail(self,subject,body,to_addr,cc_addr=[],body_type="html"):
         if self.server is None:
-            print "no login"
+            print("no login")
             return False
         msg = MIMEMultipart()
         msg['From'] = self.from_addr
@@ -42,14 +43,16 @@ class MailClient:
         msg['Subject'] = subject
         msg.attach(MIMEText(body,body_type,'utf-8'))
         self.server.sendmail(self.from_addr, to_addr + cc_addr,msg.as_string())
-        print "send complete"
+        print("send complete")
+        
+    def sendLoginCode(self,mail_to,code):
+        self.login()
+        subject = "【鱼鳍】您的登录验证码"
+        content = '<html><head><meta charset="utf-8"><title>您的登录验证码</head><body><h5>您的登录验证码是:'+code+'</h5></body></html>'
+        self.sendMail(subject,content,[mail_to])
 
 def main():
+    (MailClient()).sendLoginCode("hqraop@163.com","1234")
 
-    client = MailClient("raopingping@caiyunapp.com","rpp085620")
-    client.login()
-    subject ="test"
-    content = '<html><head><meta charset="utf-8"><title>菜鸟教程(runoob.com)</title></head><body><h1>我的第一个标题</h1><p>我的第一个段落。</p></body></html>'
-    client.sendMail(subject,content,["hqraop@163.com"])
 
 #main()

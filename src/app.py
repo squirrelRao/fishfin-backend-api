@@ -11,8 +11,10 @@ from model.kline import Kline
 from common.mongo_client import mongo_client
 from backtest.backtest import Backtest
 from common.common_util import common_util
+from common.mail_client import MailClient
+from common.sms_client import SmsClient
 from flask_cors import CORS
-
+import time
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}},supports_credentials=True)
@@ -24,6 +26,25 @@ def hello():
     logger.info("test from logger")
     return 'hello water laker'
 
+@app.route('/v1/login/code',methods=['POST'])
+def get_login_code():
+    data = request.get_data()
+    data = json.loads(data)
+    phone = data.get('phone','')
+    mail = data.get('mail','')
+    smsClient = SmsClient()
+    smsCode = smsClient.genCode()
+    db = mongo_client.fishfin
+    code = smsClient.genCode()
+    user = db.user.find_one({"mail":mail})
+    if user is None:
+        return {"rc":-1}
+    db.login_code.insert({"user_id":str(user["_id"]),"mail":mail,"phone":phone,"code":code,"create_time":time.time(),"update_time":time.time(),"status":0})
+    MailClient().sendLoginCode(mail,code)
+    res = True
+    #res = smsClient.sendSms(phone,code,_type="login")
+    return {"rc":0,"data":res}
+
 
 @app.route('/v1/regist',methods=['POST'])
 def regist():
@@ -31,16 +52,20 @@ def regist():
     data = json.loads(data)
     phone = data.get("phone","")
     name = data.get("name","")
+    mail = data.get("mail","")
     invite_code = data.get("invite_code","")
     db = mongo_client.fishfin
     _codes = [""]
     _user = db.user.find_one({"phone":phone})
     if _user is not None:
         return {"rc":-1,"msg":"registed"}
+    _user = db.user.find_one({"mail":mail})
+    if _user is not None:
+        return {"rc":-1,"msg":"registed"}
     elif invite_code not in _codes:
         return {"rc":-2,"msg":"invite_code is invalid"}
     else:
-        db.user.insert({"phone":phone,"name":name,"invite_code":invite_code,"update_time":time.time()})
+        db.user.insert({"phone":phone,"mail":mail,"name":name,"invite_code":invite_code,"update_time":time.time()})
         return {"rc":0}
 
 @app.route('/v1/login',methods=['POST'])
@@ -49,8 +74,9 @@ def login():
     data = json.loads(data)
     phone = data.get("phone","")
     code = data.get("code","")
+    mail = data.get("mail","")
     db = mongo_client.fishfin
-    _user = db.user.find_one({"phone":phone})
+    _user = db.user.find_one({"mail":mail})
     if _user is None:
         return {"rc":-1,"data":{"msg":"user is not found"}}
     _name = _user["name"]
@@ -59,7 +85,11 @@ def login():
     else:
         _name = _user["name"]
     if _user is not None and code is not None:
-        return {"rc":0,"data":{"user_id":str(_user["_id"]),"name":_name}}
+        _code = db.login_code.find_one({"user_id":str(_user["_id"]),"code":code,"status":0})
+        if _code is not None:
+            db.login_code.update({"user_id":str(_user["_id"]),"code":code},{"$set":{"status":1,"update_time":time.time()}})
+            return {"rc":0,"data":{"user_id":str(_user["_id"]),"name":_name}}
+        return {"rc":-1,"data":{"msg":"login valid code is incorrect"}}
     return {"rc":-1}
 
 @app.route('/v1/logout',methods=['POST'])
@@ -90,6 +120,7 @@ def get_backtest_result():
     end_time = common_util.string_to_timestamp(end_time)
     data = backtest.query_result(user_id,strategy,quote_currency,base_currency,period,start_time,end_time,action,page_size,page_no)
     return {"rc":0,"data":data}
+
 
 
 @app.route('/v1/symbol/query',methods=['POST'])
