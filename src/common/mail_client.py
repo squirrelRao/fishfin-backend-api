@@ -50,6 +50,24 @@ class MailClient:
         subject = "【鱼鳍】您的登录验证码"
         content = '<html><head><meta charset="utf-8"><title>您的登录验证码</head><body><h5>您的登录验证码是:'+code+'</h5></body></html>'
         self.sendMail(subject,content,[mail_to])
+   
+    def sendSignalRemind(self,mail_to,data):
+        if "desc" not in data["data"]["1min"]:
+            data["data"]["1min"]["desc"] = "持有"
+        if "desc" not in data["data"]["5min"]:
+            data["data"]["5min"]["desc"] = "持有"
+        if "desc" not in data["data"]["30min"]:
+            data["data"]["30min"]["desc"] = "持有"
+        if "desc" not in data["data"]["60min"]:
+            data["data"]["60min"]["desc"] = "持有"
+        subject = "【鱼鳍】你关注的"+data["quoto_currency"]+" 发现显著的买卖信号请查看"
+        content = '<html><head></head><body><p>'+data["quote_currency"]+'的买卖信号如下，请及时决策:</p>'
+        content += '<p>1min频率上:'+data["data"]["1min"]["desc"]+'</p>'
+        content += '<p>5min频率上:'+data["data"]["5min"]["desc"]+'</p>'
+        content += '<p>30min频率上:'+data["data"]["30min"]["desc"]+'</p>'
+        content += '<p>60min频率上:'+data["data"]["60min"]["desc"]+'</p>'
+        content += '</body></html>'
+        self.sendMail(subject,content,[mail_to])
 
 def main():
     (MailClient()).sendLoginCode("hqraop@163.com","1234")
