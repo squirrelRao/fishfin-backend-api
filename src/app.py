@@ -206,13 +206,14 @@ def update_strategy():
     data = json.loads(data)
     user_id = data.get("user_id","")
     symbol = data.get("symbol","")
+    period = data.get("period","")
     strategy = data.get("strategy","rsi")
     buy_rsi = data.get("min_buy_rsi",0)
     sale_rsi = data.get("max_sell_rsi",0)
     db = mongo_client.fishfin
     logger.info({"user_id":user_id,"symbol":symbol,"strategy":"rsi"})
     logger.info({"min_buy_rsi":buy_rsi,"max_sell_rsi":sale_rsi})
-    db.user_strategy.update({"user_id":user_id,"symbol":symbol,"strategy":"rsi"},{"$set":{"min_buy_rsi":buy_rsi,"max_sell_rsi":sale_rsi}})
+    db.user_strategy.update({"user_id":user_id,"period":period,"symbol":symbol,"strategy":"rsi"},{"$set":{"min_buy_rsi":buy_rsi,"max_sell_rsi":sale_rsi}})
     return {"rc":0}
 
 @app.route('/v1/symbol/watch/add',methods=['POST'])
@@ -225,7 +226,9 @@ def add_watch_symbol():
     db = mongo_client.fishfin
     symbol = currency + quote
     db.user_quantization.update({"user_id":user_id,"symbol":symbol},{"$set":{"user_id":user_id,"symbol":symbol,"open_signal":1,"open_trade":0,"status":1}},upsert=True)
-    db.user_strategy.update({"user_id":user_id,"symbol":symbol},{"$set":{"user_id":user_id,"symbol":symbol,"strategy" : "rsi", "max_sell_rsi" : 30, "min_buy_rsi" : 70}},upsert=True)
+    periods = ["1min","5min","30min","60min"]
+    for period in periods:
+        db.user_strategy.update({"user_id":user_id,"symbol":symbol,"period":period},{"$set":{"user_id":user_id,"period":period,"symbol":symbol,"strategy" : "rsi", "max_sell_rsi" : 30, "min_buy_rsi" : 70}},upsert=True)
     return {"rc":0}
 
 @app.route('/v1/symbol/watch/list',methods=['GET'])
