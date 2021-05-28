@@ -24,7 +24,7 @@ def signal_monitor_remind():
     mailClient = MailClient()
     for user in users:
         user_id = str(user["_id"])
-        watch = list(db.user_quantization.find({"status":1,"user_id":user_id}))
+        watch = list(db.user_quantization.find({"status":1,"open_signal":1,"user_id":user_id}))
         for item in watch:
             data = ias.symbol_remind(user_id,item["symbol"],"rsi")
             print(user["mail"]+":"+item["symbol"]+":"+str(data))
