@@ -52,6 +52,7 @@ class MailClient:
         self.sendMail(subject,content,[mail_to])
    
     def sendSignalRemind(self,mail_to,data):
+        self.login()
         if "desc" not in data["data"]["1min"]:
             data["data"]["1min"]["desc"] = "持有"
         if "desc" not in data["data"]["5min"]:
@@ -60,12 +61,13 @@ class MailClient:
             data["data"]["30min"]["desc"] = "持有"
         if "desc" not in data["data"]["60min"]:
             data["data"]["60min"]["desc"] = "持有"
-        subject = "【鱼鳍】你关注的"+data["quoto_currency"]+" 发现显著的买卖信号请查看"
-        content = '<html><head></head><body><p>'+data["quote_currency"]+'的买卖信号如下，请及时决策:</p>'
-        content += '<p>1min频率上:'+data["data"]["1min"]["desc"]+'</p>'
-        content += '<p>5min频率上:'+data["data"]["5min"]["desc"]+'</p>'
-        content += '<p>30min频率上:'+data["data"]["30min"]["desc"]+'</p>'
-        content += '<p>60min频率上:'+data["data"]["60min"]["desc"]+'</p>'
+        subject = "【鱼鳍】您关注的「"+data["quote_currency"]+"」 发现显著的买卖信号请查看"
+        content = '<html><head></head><body><p>'+data["quote_currency"]+'的信号如下，请及时决策:</p>'
+        content += '<p>1min频率上:'+data["data"]["1min"]["desc"]+'信号</p>'
+        content += '<p>5min频率上:'+data["data"]["5min"]["desc"]+'信号</p>'
+        content += '<p>30min频率上:'+data["data"]["30min"]["desc"]+'信号</p>'
+        content += '<p>60min频率上:'+data["data"]["60min"]["desc"]+'信号</p>'
+        content += '<p><a href="http://localhost:8080/center/focus" target="blank">点击前往查看</a>'
         content += '</body></html>'
         self.sendMail(subject,content,[mail_to])
 

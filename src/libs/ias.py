@@ -20,7 +20,7 @@ class IaS():
         _60min = self.strategy_auto_remind(user_id,symbol,"60min","rsi")
         is_remind = 0
         if _1min["is_remind"] == 1 or _5min["is_remind"] == 1 or _30min["is_remind"] == 1 or _60min["is_remind"] == 1:
-            is_remind == 1
+            is_remind = 1
         if is_remind == 0:
             return {"is_remind":0}
         return {"is_remind":1,"quote_currency":symbol.replace("usdt",""),"user_id":user_id,"data":{"1min":_1min,"5min":_5min,"30min":_30min,"60min":_60min}}
@@ -84,7 +84,7 @@ class IaS():
         for signal in signals[:8]:
             if signal["singal"] == latest:
                 count += 1
-        percent = round(float(count)*100/len(signals),2)
+        percent = round(float(count)*100/8,2)
         if percent > 50:
             return {"is_remind":1,"signal":signal,"desc":desc}
         else:
@@ -92,7 +92,7 @@ class IaS():
             for signal in signals[0:4]:
                 if signal["singal"] == latest:
                     count += 1
-            percent = round(float(count)*100/len(signals),2)
+            percent = round(float(count)*100/4,2)
             if percent >= 50:
                 return {"is_remind":1,"signal":signal,"desc":desc}
         return {"is_remind":0}
@@ -107,7 +107,7 @@ class IaS():
         for signal in signals[:4]:
             if signal["singal"] == latest:
                 count += 1
-        percent = round(float(count)*100/len(signals),2)
+        percent = round(float(count)*100/4,2)
         if percent > 50:
             return {"is_remind":1,"signal":signal,"desc":desc}
         else:

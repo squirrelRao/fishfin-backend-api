@@ -31,7 +31,7 @@ def signal_monitor_remind():
             if data["is_remind"] == 0:
                 continue
             else:
-                mailClient.sendSignalRemind(user["mail"],item["symbol"])
+                mailClient.sendSignalRemind(user["mail"],data)
 
 
 
