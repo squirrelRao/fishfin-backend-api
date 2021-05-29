@@ -200,6 +200,23 @@ def update_signal_status():
     return {"rc":0}
 
 
+@app.route('/v1/signal/query',methods=['POST'])
+def query_signals():
+    data = request.get_data()
+    data = json.loads(data)
+    user_id = data.get("user_id","")
+    symbol = data.get("symbol","")
+    period = data.get("period","")
+    db = mongo_client.fishfin
+    count = 10
+    res = list(db.user_quantization_signal.find({"user_id":user_id,"symbol":symbol,"period":period}).sort("ktime",-1).limit(count))
+    for item in res:
+        ktime_str = common_util.timestamp_to_string(item["ktime"],"%H:%M:%S")
+        item["ktime_str"] = ktime_str
+    rs = {"rc":0,"data":res}
+    return json.loads(json_util.dumps(rs))
+
+
 @app.route('/v1/strategy/update',methods=['POST'])
 def update_strategy():
     data = request.get_data()
