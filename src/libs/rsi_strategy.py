@@ -55,7 +55,11 @@ class RsiStrategy(Strategy):
             trade = SimulationTrade()
         else:
             trade = None
-
+            
+        strategy = self.get_strategy(user_id,symbol,period)
+        if strategy is not None:
+            self.min_sell_rsi = strategy["max_sell_rsi"]
+            self.max_buy_rsi = strategy["min_buy_rsi"]
         #execute transaction action
         action = "keep"
         if rsi >= self.min_sell_rsi:

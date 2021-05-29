@@ -14,6 +14,11 @@ class Strategy:
         self.name = ""
         self.data = list()
         return
+    
+    def get_strategy(self,user_id,symbol,period):
+        db = mongo_client.fishfin
+        strategy = db.user_strategy.find_one({"user_id":user_id,"symbol":symbol,"period":period})
+        return strategy
 
     def get_period_timestamp(self,period):
         if "min" in period:
