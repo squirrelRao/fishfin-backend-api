@@ -19,8 +19,8 @@ class RsiStrategy(Strategy):
         super(RsiStrategy,self).__init__()
         self.name = "rsi"
         self.period_count = 14
-        self.min_sell_rsi = 70
-        self.max_buy_rsi = 30
+        self.min_sell_rsi = 30
+        self.max_buy_rsi = 70
         return
 
     #trade_count_type : limit
@@ -62,9 +62,9 @@ class RsiStrategy(Strategy):
             self.max_buy_rsi = float(strategy["min_buy_rsi"])
         #execute transaction action
         action = "keep"
-        if rsi >= self.min_sell_rsi:
+        if rsi <= self.min_sell_rsi:
             action = "sell"
-        elif rsi <= self.max_buy_rsi:
+        elif rsi >= self.max_buy_rsi:
             action = "buy"
         print(action) 
         amount = 0
