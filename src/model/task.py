@@ -4,6 +4,7 @@ import time
 sys.path.append("..")
 from common.mongo_client import mongo_client
 from common.net_client import net_client
+from common.common_util import common_util
 from bson import ObjectId 
 from bson import json_util
 
@@ -14,12 +15,28 @@ class Task:
         return
 
 
-    def new_task(self,user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time):
-        task = {"user_id":user_id,"strategy":strategy,"quote_currency":quote_currency,"base_currency":base_currency,"period":period,"limit_trade_count":limit_trade_count,"start_time":start_time,"end_time":end_time}
+    def new_task(self,user_id,strategy,quote_currency,base_currency,period,init_amount,limit_trade_count,start_time,end_time):
+        task = {"user_id":user_id,"strategy":strategy,"quote_currency":quote_currency,"base_currency":base_currency,"period":period,"init_amount":init_amount,"limit_trade_count":limit_trade_count,"start_time":start_time,"end_time":end_time}
         task["status"] = 0
         task["create_time"] = time.time()
-        self.db.test_task.insert(taks)
+        self.db.test_task.insert(task)
 
+    def query_task(self,user_id,page_size,page_no):
+        skip = page_size * ( page_no - 1)
+        count = self.db.test_task.count({"status":{"$ne":-1}})
+        
+        res = self.db.test_task.find({"user_id":user_id,"status":{"$ne":-1}}).sort("create_time",-1).limit(page_size).skip(skip)
+        x = []
+        for item in res:
+            item["_id"] = str(item["_id"])
+            item["create_time_str"] = common_util.timestamp_to_string(item["create_time"])
+            item["start_time"] = item["start_time"][:10]
+            item["end_time"] = item["end_time"][:10]
+            item["ror"] = 0
+            x.append(item)
+            
+        data = {"count":count,"data":x}
+        return data
 
     def get_waiting_task(self):
         task = None
@@ -31,6 +48,10 @@ class Task:
     #get task 
     def get_task(self,task_id):
         task = self.db.test_task.find_one({"_id":ObjectId(task_id)})
+        task["start_time"] = task["start_time"][:10]
+        task["end_time"] = task["end_time"][:10]
+        task["create_time_str"] = common_util.timestamp_to_string(task["create_time"])
+        task["ror"] = 0 
         task["task_id"] = str(task["_id"])
         return task
 

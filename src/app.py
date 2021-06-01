@@ -8,6 +8,7 @@ sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.getcwd())),"src/
 from model.huobi import HuobiTrade
 from model.user import User
 from model.kline import Kline
+from model.task import Task
 from common.mongo_client import mongo_client
 from backtest.backtest import Backtest
 from common.common_util import common_util
@@ -122,6 +123,55 @@ def get_backtest_result():
     return {"rc":0,"data":data}
 
 
+@app.route('/v1/backtest/add',methods=['POST'])
+def add_backtest():
+    data = request.get_data()
+    data = json.loads(data)
+    task = Task()
+    user_id = data.get("user_id","")
+    strategy = data.get("strategy","rsi")
+    quote_currency = data.get("quote_currency","")
+    base_currency = data.get("base_currency","usdt")
+    period = data.get("period","")
+    limit_trade_count = data.get("limit_trade_count","")
+    init_amount = data.get("init_amount",5000)
+    start_time = data.get("start_time","")
+    end_time = data.get("end_time","")
+    task.new_task(user_id,strategy,quote_currency,base_currency,period,init_amount,limit_trade_count,start_time,end_time)
+    return {"rc":0}
+
+@app.route('/v1/backtest/detail',methods=['POST'])
+def get_backtest_detail():
+    data = request.get_data()
+    data = json.loads(data)
+    task_id = data.get("task_id","")
+    task = Task()
+    data = task.get_task(task_id)
+    ror = []
+    rs =  {"rc":0,"data":data,"ror":ror}
+    return json.loads(json_util.dumps(rs))
+
+
+@app.route('/v1/backtest/get',methods=['POST'])
+def get_backtest():
+    data = request.get_data()
+    data = json.loads(data)
+    user_id = data.get("user_id","")
+    page_size = data.get("page_size",5)
+    page_no = data.get("page_no",1)
+    task = Task()
+    data =  task.query_task(user_id,page_size,page_no)
+    rs = {"rc":0,"data":data}
+    return json.loads(json_util.dumps(rs))
+
+@app.route('/v1/backtest/remove',methods=['POST'])
+def remove_backtest():
+    data = request.get_data()
+    data = json.loads(data)
+    task_id = data.get("task_id","")
+    task = Task()
+    task.update_task_status(task_id,-1)
+    return {"rc":0}
 
 @app.route('/v1/symbol/query',methods=['POST'])
 def get_currencys():
