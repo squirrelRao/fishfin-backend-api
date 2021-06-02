@@ -31,11 +31,11 @@ class Trade:
         order.update({"_id":ObjectId(order_id)},{"$set":{"status":3}})
 
     #log trade
-    def log(self,user_id,order_id,amount,price,symbol,currency,trans_fee,base_currency_balance,quote_currency_balance,ktime,strategy,action="new",log_id=None):
+    def log(self,user_id,order_id,amount,price,period,symbol,currency,trans_fee,base_currency_balance,quote_currency_balance,ktime,strategy,action="new",log_id=None):
         log = self.db.simulation_trade_log
         if self.name not in ["simulation",""]:
             log = self.db.real_trade_log
-        info = {"name":"trade","strategy":strategy,"user_id":user_id,"order_id":order_id,"trade_amount":amount,"price":price,"base_currency_balance":base_currency_balance,"quote_currency_balance":quote_currency_balance,"ktime":ktime,"symbol":symbol,"trans_fee":trans_fee,"currency":currency,"action":action,"update_time":time.time()}
+        info = {"name":"trade","strategy":strategy,"period":period,"user_id":user_id,"order_id":order_id,"trade_amount":amount,"price":price,"base_currency_balance":base_currency_balance,"quote_currency_balance":quote_currency_balance,"ktime":ktime,"symbol":symbol,"trans_fee":trans_fee,"currency":currency,"action":action,"update_time":time.time()}
         print(info)
         if log_id is None:
             info["log_id"] = ""

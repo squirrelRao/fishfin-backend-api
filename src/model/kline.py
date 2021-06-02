@@ -66,10 +66,12 @@ class Kline:
 
     def get_ktime_period_data(self,symbol,period,period_count=14,ktime=time.time()):
         data = list()
-        res = self.db.kline.find({"name":"market."+symbol+".kline."+period,"ktime":{"$lte":ktime}}).sort("ktime",1).limit(period_count)
+        res = self.db.kline.find({"name":"market."+symbol+".kline."+period,"ktime":{"$lte":ktime}}).limit(period_count)
+        
         for item in res:
             item.pop("_id")
             data.append(item)
+        data = list(reversed(data))
         return data
     
     def get_data(self,symbol,period,page_size=20,page_no=1):

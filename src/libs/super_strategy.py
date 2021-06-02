@@ -49,6 +49,7 @@ class Strategy:
         prices = list()
         for item in self.data:
             if name in item:
+                print(item)
                 prices.append(float(item[name]))
         return prices
 

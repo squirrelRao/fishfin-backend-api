@@ -40,59 +40,79 @@ class Backtest:
         #execute strategy
         for line in lines:
             st.run(user_id,quote_currency,base_currency,period,line["ktime"],limit_trade_count,trade_name="simulation")
-
+        
         #compute rate of return
-        logs = self.db.simulation_trade_log.find({"symbol":symbol,"strategy":strategy,"user_id":user_id,"action":"finish","ktime":{"$gte":start_time,"$lte":end_time}}).sort("ktime",1)
+        logs = self.db.simulation_trade_log.find({"period":period,"symbol":symbol,"strategy":strategy,"user_id":user_id,"action":"finish","ktime":{"$gte":start_time,"$lte":end_time}}).sort("ktime",1)
         rates = list()
         logs = list(logs)
-        for index,log in enumerate(logs[1:]):
-            pre = logs[index-1]
-            current = log
+        step = 0
+        if period == "1min":
+            step = 60 * 24
+        elif period == "5min":
+            step = 12 * 24
+        elif period == "30min":
+            step =  2 * 24
+        elif period == "60min":
+            step = 24
+        for index,log in enumerate(logs[0:]):
+            if index % ( step - 1 ) != 0:
+                continue 
+            pre = logs[index]
+            end_index = -1
+            if index + step >= len(logs):
+                end_index = -1
+            else:
+                end_index = index+step-1
+            current = logs[end_index]
             pre_value = pre["price"] * pre["quote_currency_balance"] + pre["base_currency_balance"]
             current_value = current["price"] * current["quote_currency_balance"] + current["base_currency_balance"]
             ror = round((float(current_value - pre_value)/pre_value * 100),2)
             quote_currency_balance = log["quote_currency_balance"]
             base_currency_balance = log["base_currency_balance"]
-            self.db.backtest.update({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"ktime":current["ktime"]},{"$set":{"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"ktime":current["ktime"],"ror":ror,"quote_currency":quote_currency,"quote_currency_balance":quote_currency_balance,"base_currency":base_currency,"base_currency_balance":base_currency_balance,"trade_log_id":current["log_id"]}},upsert=True)
+            self.db.backtest.update({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"start_ktime":pre["ktime"],"end_ktime":current["ktime"]},{"$set":{"user_id":user_id,"symbol":symbol,"pre_quote_currency_balance":pre["quote_currency_balance"],"pre_base_currency_balance":pre["base_currency_balance"],"period":period,"strategy":strategy,"start_price":pre["price"],"end_price":current["price"],"start_value":pre_value,"end_value":current_value,"start_index":index,"end_index":end_index,"start_ktime":pre["ktime"],"end_ktime":current["ktime"],"ror":ror,"ror_period":"24hour","quote_currency":quote_currency,"current_quote_currency_balance":quote_currency_balance,"base_currency":base_currency,"current_base_currency_balance":base_currency_balance,"trade_log_id":current["log_id"]}},upsert=True)
+            
         return
 
     def query_result(self,user_id,strategy,quote_currency,base_currency,period,start_time,end_time,action,page_size,page_no):
         symbol = quote_currency + base_currency
-        lines = Kline().get_ktime_range_data(symbol,period,start_time,end_time)
-        ror  = dict()
-        res = self.db.backtest.find({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"ktime":{"$lte":end_time,"$gte":start_time}})
+        #lines = Kline().get_ktime_range_data(symbol,period,start_time,end_time)
+        ror  = list()
+        res = self.db.backtest.find({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"start_ktime":{"$lte":end_time,"$gte":start_time}})
         for item in res:
             item.pop("_id")
-            ror[item["ktime"]] = item
+            item["ror"] = round(item["ror"],2)
+            ror.append(item)
+            #ror[item["ktime"]] = item
         st = self.db.user_strategy.find_one({"user_id":user_id,"strategy":strategy})
         st.pop("_id")
-        res = self.db.user_quantization_signal.find({"user_id":user_id,"strategy":strategy,"symbol":symbol,"period":period,"ktime":{"$lte":end_time,"$gte":start_time}})
-        signals = dict()
-        for item in res:
-            item.pop("_id")
-            signals[item["ktime"]] = item
-
-        for line in lines:
-            _time = line["ktime"]
-            if _time in ror:
-                line["rate_of_return"] = ror[_time]["ror"]
-                line["trade_log_id"] = ror[_time]["trade_log_id"]
-                line["quote_currency"] = ror[_time]["quote_currency"]
-                line["quote_currency_balance"] = ror[_time]["quote_currency_balance"]
-                line["base_currency"] = ror[_time]["base_currency"]
-                line["base_currency_balance"] = ror[_time]["base_currency_balance"]
-            if _time in signals:
-                line["advice"] = signals[_time]["singal"]
-                line["advice_trade_amount"] = signals[_time]["trade_amount"]
-                line["rsi"] = signals[_time]["data"]
-        _lines = list()
-        for _line in lines:
-            if _line["advice"] in action:
-                _lines.append(_line)
-        lines = _lines
-        if len(lines) >= page_size * page_no:
-            lines = lines[page_size * ( page_no - 1) : page_size * page_no]
-        data = {"user_id":user_id,"quote_currency":quote_currency,"base_currency":base_currency,"period":period,"start_time":start_time,"end_time":end_time,"strategy":strategy,"back_result":lines,"strategy_detail":st}
+        #res = self.db.user_quantization_signal.find({"user_id":user_id,"strategy":strategy,"symbol":symbol,"period":period,"ktime":{"$lte":end_time,"$gte":start_time}})
+        #signals = dict()
+        #for item in res:
+        #    item.pop("_id")
+        #    signals[item["ktime"]] = item
+        
+        #for line in lines:
+        #    _time = line["ktime"]
+        #    if _time in ror:
+        #        line["rate_of_return"] = ror[_time]["ror"]
+        #        line["trade_log_id"] = ror[_time]["trade_log_id"]
+        #        line["quote_currency"] = ror[_time]["quote_currency"]
+        #        line["quote_currency_balance"] = ror[_time]["quote_currency_balance"]
+        #        line["base_currency"] = ror[_time]["base_currency"]
+        #        line["base_currency_balance"] = ror[_time]["base_currency_balance"]
+        #    if _time in signals:
+        #        line["advice"] = signals[_time]["singal"]
+        #        line["advice_trade_amount"] = signals[_time]["trade_amount"]
+        #        line["rsi"] = signals[_time]["data"]
+            
+        #_lines = list()
+        #for _line in lines:
+        #    if "advice" in _line and _line["advice"] in action:
+        #        _lines.append(_line)
+        #lines = _lines
+        #if len(lines) >= page_size * page_no:
+        #    lines = lines[page_size * ( page_no - 1) : page_size * page_no]
+        data = {"user_id":user_id,"quote_currency":quote_currency,"base_currency":base_currency,"period":period,"start_time":start_time,"end_time":end_time,"strategy":strategy,"back_result":ror,"strategy_detail":st}
         return data
 
 def clear_data():
@@ -127,3 +147,25 @@ def main():
 #main()
 
 #clear_data()
+
+
+def query():
+    symbol = "btcusdt"
+    period="1min"
+    start_time = common_util.string_to_timestamp("2021-03-28 00:00:00")
+    end_time = common_util.string_to_timestamp("2021-04-02 23:59:00")
+    test = Backtest()
+    strategy = "rsi"
+    user_id = "60607bd63a7c1d3802e86243"
+    page_size = 100
+    page_no = 1
+    action = ""
+    quote_currency = "btc"
+    base_currency = "usdt"
+
+    data = test.query_result(user_id,strategy,quote_currency,base_currency,period,start_time,end_time,action,page_size,page_no)
+    print(data)
+
+
+#query(se_currency_balance"])
+            eor["ror"] = round(item["ro
