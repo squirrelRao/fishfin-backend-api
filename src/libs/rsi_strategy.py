@@ -41,7 +41,7 @@ class RsiStrategy(Strategy):
         #compute index
         rsi = ta.RSI(np.array(prices),self.period_count)
         rsi = round(rsi[len(rsi)-1],6)
-        print("rsi:"+str(rsi))
+        #print("rsi:"+str(rsi))
         
         log_info["data"] = rsi
         log_info["data_type"] = "rsi"
@@ -72,11 +72,15 @@ class RsiStrategy(Strategy):
         else:
             if action in ["buy","sell"]:
                 #submit action
-                max_trade_count = self.get_max_action_amount(user_id,quote_currency,cur_price,trans_fee,trade_name)
-                if max_trade_count < limit_trade_count:
-                    amount = max_trade_count
-                else:
-                    amount = limit_trade_count
+                target_currency = quote_currency
+                if action == "buy":
+                    target_currency = base_currency
+                #max_trade_count = self.get_max_action_amount(user_id,target_currency,cur_price,trans_fee,trade_name)
+                #if max_trade_count < limit_trade_count:
+                #    amount = max_trade_count
+                #else:
+                #    amount = limit_trade_count
+                amount = limit_trade_count
                 self.signal(user_id,symbol,period,self.name,ktime,rsi,amount,action)
                 trade.submit_market_transaction(user_id,period,symbol,amount,cur_price,quote_currency,trans_fee,ktime,self.name,action)
             else:

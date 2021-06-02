@@ -36,7 +36,7 @@ class Trade:
         if self.name not in ["simulation",""]:
             log = self.db.real_trade_log
         info = {"name":"trade","strategy":strategy,"period":period,"user_id":user_id,"order_id":order_id,"trade_amount":amount,"price":price,"base_currency_balance":base_currency_balance,"quote_currency_balance":quote_currency_balance,"ktime":ktime,"symbol":symbol,"trans_fee":trans_fee,"currency":currency,"action":action,"update_time":time.time()}
-        print(info)
+        #print(info)
         if log_id is None:
             info["log_id"] = ""
             res = log.insert_one(info)

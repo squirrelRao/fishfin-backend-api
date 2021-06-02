@@ -67,8 +67,8 @@ class Backtest:
             pre_value = pre["price"] * pre["quote_currency_balance"] + pre["base_currency_balance"]
             current_value = current["price"] * current["quote_currency_balance"] + current["base_currency_balance"]
             ror = round((float(current_value - pre_value)/pre_value * 100),2)
-            quote_currency_balance = log["quote_currency_balance"]
-            base_currency_balance = log["base_currency_balance"]
+            quote_currency_balance = current["quote_currency_balance"]
+            base_currency_balance = current["base_currency_balance"]
             self.db.backtest.update({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"start_ktime":pre["ktime"],"end_ktime":current["ktime"]},{"$set":{"user_id":user_id,"symbol":symbol,"pre_quote_currency_balance":pre["quote_currency_balance"],"pre_base_currency_balance":pre["base_currency_balance"],"period":period,"strategy":strategy,"start_price":pre["price"],"end_price":current["price"],"start_value":pre_value,"end_value":current_value,"start_index":index,"end_index":end_index,"start_ktime":pre["ktime"],"end_ktime":current["ktime"],"ror":ror,"ror_period":"24hour","quote_currency":quote_currency,"current_quote_currency_balance":quote_currency_balance,"base_currency":base_currency,"current_base_currency_balance":base_currency_balance,"trade_log_id":current["log_id"]}},upsert=True)
             
         return
@@ -83,6 +83,9 @@ class Backtest:
             item["start_ktime_str"] = common_util.timestamp_to_string(item["start_ktime"])
             item["end_ktime_str"] = common_util.timestamp_to_string(item["end_ktime"])
             item["ror"] = round(item["ror"],2)
+            item["end_value"] = str(item["end_value"])
+            item["start_value"] = str(item["start_value"])
+            item["ror"] = str(item["ror"])
             ror.append(item)
             #ror[item["ktime"]] = item
         st = self.db.user_strategy.find_one({"user_id":user_id,"strategy":strategy})
@@ -148,7 +151,7 @@ def main():
 
 #main()
 
-#clear_data()
+clear_data()
 
 
 def query():

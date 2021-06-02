@@ -37,9 +37,11 @@ class Strategy:
             tb = self.db.user_simulation_currency
         else:
             tb = None
+        print({"user_id":user_id,"currency":currency})
         info = tb.find_one({"user_id":user_id,"currency":currency})
         balance = info["balance"]
-        max_amount = round(float(balance)/price * ( 1 - trans_fee),6)
+        max_amount = round(float(balance)/price * ( 1 - trans_fee),10)
+        print(max_amount)
         return max_amount
 
     def run(self,symbol,period,start_ktime,end_ktime):
@@ -49,7 +51,6 @@ class Strategy:
         prices = list()
         for item in self.data:
             if name in item:
-                print(item)
                 prices.append(float(item[name]))
         return prices
 
@@ -62,6 +63,6 @@ class Strategy:
     def log(self,info):
         log = info.copy()
         log["update_time"] = time.time()
-        print(log)
+        #print(log)
         res = self.db.strategy_log.insert_one(log)
         return str(res.inserted_id)

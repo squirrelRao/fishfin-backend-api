@@ -29,23 +29,26 @@ class SimulationTrade(Trade):
         log_id = self.log(user_id,order_id,amount,price,period,symbol,currency,trans_fee,base_currency_balance,quote_currency_balance,ktime,strategy,action="new")
         base_change = 0 # symbol is btcusdt, base currency is btc , quote currency is usdt
         quote_change = 0
-        
         if _type == "buy":#use usdt buy btc
-            if amount > float(base_currency_balance)/price - float(base_currency_balance)/price * trans_fee:
-                amount = float(base_currency_balance)/price
-            base_change = 0 - amount * price - amount * price * trans_fee
+            if amount > base_currency_balance:
+                amount = base_currency_balance
+            base_change = float(0) - float(amount / price * ( 1 + trans_fee))
             quote_change = amount
+            print(amount,_type,base_change,quote_change)
         elif _type == "sell":#sell btc get usdt
-            if amount > quote_currency_balance - float(quote_currency_balance) * trans_fee:
+            if amount > quote_currency_balance:
                 amount = quote_currency_balance
-            base_change = amount * price - amount * price * trans_fee
-            quote_change = 0 - amount
-        
+            base_change = float(amount * price *  ( 1 - trans_fee))
+            quote_change = float(0) - float(amount)
+            print(amount,_type,base_change,quote_change)
+        else:
+            print(amount,_type)
+            amount = 0
         base_currency_balance = base_currency_balance + base_change
         quote_currency_balance = quote_currency_balance + quote_change
 
-        self.db.user_simulation_currency.update({"user_id":user_id,"currency":currency},{"$inc":{"balance":base_currency_balance}})
-        self.db.user_simulation_currency.update({"user_id":user_id,"currency":quote_currency},{"$inc":{"balance":quote_currency_balance}})
+        self.db.user_simulation_currency.update({"user_id":user_id,"currency":currency},{"$set":{"balance":base_currency_balance}})
+        self.db.user_simulation_currency.update({"user_id":user_id,"currency":quote_currency},{"$set":{"balance":quote_currency_balance}})
         
         self.finish_order(order_id)
         self.log(user_id,order_id,amount,price,period,symbol,currency,trans_fee,base_currency_balance,quote_currency_balance,ktime,strategy,action="finish",log_id=log_id)
