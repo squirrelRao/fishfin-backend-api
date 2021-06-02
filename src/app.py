@@ -137,7 +137,9 @@ def add_backtest():
     init_amount = data.get("init_amount",5000)
     start_time = data.get("start_time","")
     end_time = data.get("end_time","")
-    task.new_task(user_id,strategy,quote_currency,base_currency,period,init_amount,limit_trade_count,start_time,end_time)
+    buy_rsi = data.get("buy_rsi",0)
+    sell_rsi = data.get("sell_rsi",0)
+    task.new_task(user_id,strategy,quote_currency,base_currency,period,init_amount,limit_trade_count,buy_rsi,sell_rsi,start_time,end_time)
     return {"rc":0}
 
 @app.route('/v1/backtest/detail',methods=['POST'])

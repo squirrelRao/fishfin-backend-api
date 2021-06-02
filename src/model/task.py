@@ -15,8 +15,8 @@ class Task:
         return
 
 
-    def new_task(self,user_id,strategy,quote_currency,base_currency,period,init_amount,limit_trade_count,start_time,end_time):
-        task = {"user_id":user_id,"strategy":strategy,"quote_currency":quote_currency,"base_currency":base_currency,"period":period,"init_amount":init_amount,"limit_trade_count":limit_trade_count,"start_time":start_time,"end_time":end_time}
+    def new_task(self,user_id,strategy,quote_currency,base_currency,period,init_amount,limit_trade_count,buy_rsi,sell_rsi,start_time,end_time):
+        task = {"user_id":user_id,"strategy":strategy,"quote_currency":quote_currency,"base_currency":base_currency,"period":period,"init_amount":init_amount,"limit_trade_count":limit_trade_count,"buy_rsi":buy_rsi,"sell_rsi":sell_rsi,"start_time":start_time,"end_time":end_time}
         task["status"] = 0
         task["create_time"] = time.time()
         self.db.test_task.insert(task)
