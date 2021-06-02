@@ -28,7 +28,6 @@ class Backtest:
         task.update_status(task["task_id"],2)
 
     def run(self,user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time):
-        
         st = None
         if strategy == "rsi":
             st = RsiStrategy()
