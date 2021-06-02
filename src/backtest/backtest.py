@@ -134,7 +134,7 @@ def clear_data():
 
 
 def main():
-    #clear_data()
+    clear_data()
     test = Backtest()
     #user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time
     user_id = "60607bd63a7c1d3802e86243"
@@ -145,14 +145,16 @@ def main():
     limit_trade_count = 1000
     start_time = common_util.string_to_timestamp("2021-03-28 00:00:00")
     end_time = common_util.string_to_timestamp("2021-04-02 23:59:00")
+    db = mongo_client.fishfin
+    db.user_simulation_currency.update({"currency":quote_currency},{"$set":{"balance":0}})
+    db.user_simulation_currency.update({"currency":"usdt"},{"$set":{"balance":5000}})
     print("start backtest")
     test.run(user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time)
     print("backtest end ")
 
+
+#clear_data()
 #main()
-
-clear_data()
-
 
 def query():
     symbol = "btcusdt"
