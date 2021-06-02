@@ -80,6 +80,8 @@ class Backtest:
         res = self.db.backtest.find({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"start_ktime":{"$lte":end_time,"$gte":start_time}})
         for item in res:
             item.pop("_id")
+            item["start_ktime_str"] = common_util.timestamp_to_string(item["start_ktime"])
+            item["end_ktime_str"] = common_util.timestamp_to_string(item["end_ktime"])
             item["ror"] = round(item["ror"],2)
             ror.append(item)
             #ror[item["ktime"]] = item
@@ -168,4 +170,3 @@ def query():
 
 
 #query(se_currency_balance"])
-            eor["ror"] = round(item["ro
