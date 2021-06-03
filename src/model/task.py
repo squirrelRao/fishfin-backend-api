@@ -48,8 +48,11 @@ class Task:
     #get task 
     def get_task(self,task_id):
         task = self.db.test_task.find_one({"_id":ObjectId(task_id)})
+        task["start_time_origin"] = task["start_time"]
+        task["end_time_origin"] = task["end_time"]
         task["start_time"] = task["start_time"][:10]
         task["end_time"] = task["end_time"][:10]
+        
         task["create_time_str"] = common_util.timestamp_to_string(task["create_time"])
         task["last_current_value"] = round(task["last_current_value"],6)
         task["task_id"] = str(task["_id"])

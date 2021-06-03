@@ -119,9 +119,9 @@ def get_backtest_result():
     action = data.get("action",["keep","buy","sell"])
     start_time = common_util.string_to_timestamp(start_time)
     end_time = common_util.string_to_timestamp(end_time)
-    data = backtest.query_result(user_id,strategy,quote_currency,base_currency,period,start_time,end_time,action,page_size,page_no)
-    return {"rc":0,"data":data}
-
+    data = backtest.query_result(user_id,strategy,quote_currency,base_currency,period,start_time,end_time)
+    rs = {"rc":0,"data":data}
+    return rs
 
 @app.route('/v1/backtest/add',methods=['POST'])
 def add_backtest():
@@ -149,8 +149,9 @@ def get_backtest_detail():
     task_id = data.get("task_id","")
     task = Task()
     data = task.get_task(task_id)
-    ror = []
-    rs =  {"rc":0,"data":data,"ror":ror}
+    logger.info(data)
+    backtest = Backtest().query_result_by_task(data)
+    rs =  {"rc":0,"task":data,"backtest":backtest}
     return json.loads(json_util.dumps(rs))
 
 
