@@ -75,7 +75,7 @@ class Backtest:
             quote_currency_balance = current["quote_currency_balance"]
             base_currency_balance = current["base_currency_balance"]
             last_current_value = current_value
-            self.db.backtest.update({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"start_ktime":pre["ktime"],"end_ktime":current["ktime"]},{"$set":{"user_id":user_id,"symbol":symbol,"pre_quote_currency_balance":pre["quote_currency_balance"],"pre_base_currency_balance":pre["base_currency_balance"],"period":period,"strategy":strategy,"start_price":pre["price"],"end_price":current["price"],"start_value":pre_value,"end_value":current_value,"start_index":index,"end_index":end_index,"start_ktime":pre["ktime"],"end_ktime":current["ktime"],"ror":ror,"ror_period":"24hour","quote_currency":quote_currency,"current_quote_currency_balance":quote_currency_balance,"base_currency":base_currency,"current_base_currency_balance":base_currency_balance,"trade_log_id":current["log_id"]}},upsert=True)
+            self.db.backtest.update({"task_id":task_id,"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"start_ktime":pre["ktime"],"end_ktime":current["ktime"]},{"$set":{"task_id":task_id,"user_id":user_id,"symbol":symbol,"pre_quote_currency_balance":pre["quote_currency_balance"],"pre_base_currency_balance":pre["base_currency_balance"],"period":period,"strategy":strategy,"start_price":pre["price"],"end_price":current["price"],"start_value":pre_value,"end_value":current_value,"start_index":index,"end_index":end_index,"start_ktime":pre["ktime"],"end_ktime":current["ktime"],"ror":ror,"ror_period":"24hour","quote_currency":quote_currency,"current_quote_currency_balance":quote_currency_balance,"base_currency":base_currency,"current_base_currency_balance":base_currency_balance,"trade_log_id":current["log_id"]}},upsert=True)
         avg_ror = round(total_ror/_i,2)
         task =  Task()
         task.update_task_ror(task_id,avg_ror,total_ror,last_current_value)
@@ -85,13 +85,12 @@ class Backtest:
     def query_result_by_task(self,task):
         
         print(task)
-        data = self.query_result(task["user_id"],"rsi",task["quote_currency"],task["base_currency"],task["period"],task["start_time_origin"],task["end_time_origin"])
+        data = self.query_result(task)
         return data
 
-    def query_result(self,user_id,strategy,quote_currency,base_currency,period,start_time,end_time):
-        symbol = quote_currency + base_currency
+    def query_result(self,task):
         ror  = list()
-        res = self.db.backtest.find({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"start_ktime":{"$lte":end_time,"$gte":start_time}})
+        res = self.db.backtest.find({"task_id":str(task["_id"])})
         for item in res:
             item.pop("_id")
             item["start_ktime_str"] = common_util.timestamp_to_string(item["start_ktime"])
@@ -101,9 +100,9 @@ class Backtest:
             item["start_value"] = str(item["start_value"])
             item["ror"] = str(item["ror"])
             ror.append(item)
-        st = self.db.user_strategy.find_one({"user_id":user_id,"strategy":strategy})
+        st = self.db.user_strategy.find_one({"user_id":task["user_id"],"strategy":"rsi"})
         st.pop("_id")
-        data = {"user_id":user_id,"quote_currency":quote_currency,"base_currency":base_currency,"period":period,"start_time":start_time,"end_time":end_time,"strategy":strategy,"back_result":ror,"strategy_detail":st}
+        data = {"back_result":ror,"strategy_detail":st}
         return data
 
 def clear_data():
@@ -125,12 +124,12 @@ def main():
     #user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time
     user_id = "60607bd63a7c1d3802e86243"
     strategy = "rsi"
-    quote_currency = "btc"
+    quote_currency = "shib"
     base_currency = "usdt"
     period = "1min"#1min, 5min, 15min, 30min, 60min, 4hour, 1day, 1mon, 1week, 1year
     limit_trade_count = 1000
-    start_time = common_util.string_to_timestamp("2021-03-28 00:00:00")
-    end_time = common_util.string_to_timestamp("2021-04-02 23:59:00")
+    start_time = common_util.string_to_timestamp("2021-05-26 00:00:00")
+    end_time = common_util.string_to_timestamp("2021-06-02 00:00:00")
     db = mongo_client.fishfin
     db.user_simulation_currency.update({"currency":quote_currency},{"$set":{"balance":0}})
     db.user_simulation_currency.update({"currency":"usdt"},{"$set":{"balance":5000}})
@@ -140,25 +139,8 @@ def main():
     print("backtest end ")
 
 
+#task = (Task()).get_task("60b6fe55c113f6e0e9b853ff")
+#(Backtest()).query_result_by_task(task)
 #clear_data()
 #main()
-
-def query():
-    symbol = "btcusdt"
-    period="1min"
-    start_time = common_util.string_to_timestamp("2021-03-28 00:00:00")
-    end_time = common_util.string_to_timestamp("2021-04-02 23:59:00")
-    test = Backtest()
-    strategy = "rsi"
-    user_id = "60607bd63a7c1d3802e86243"
-    page_size = 100
-    page_no = 1
-    action = ""
-    quote_currency = "btc"
-    base_currency = "usdt"
-    
-    data = test.query_result(user_id,strategy,quote_currency,base_currency,period,start_time,end_time,action,page_size,page_no)
-    print(data)
-
-
 #query(se_currency_balance"])
