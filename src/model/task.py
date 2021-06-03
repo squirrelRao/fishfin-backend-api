@@ -32,11 +32,17 @@ class Task:
             item["create_time_str"] = common_util.timestamp_to_string(item["create_time"])
             item["start_time"] = item["start_time"][:10]
             item["end_time"] = item["end_time"][:10]
+            if "last_current_value" not in item:
+                item["last_current_value"] = 0
             item["last_current_value"] = round(item["last_current_value"],6) 
             x.append(item)
             
         data = {"count":count,"data":x}
         return data
+    
+    def get_running_task_count(self):
+        count = self.db.test_task.count({"status":1})
+        return count
 
     def get_waiting_task(self):
         task = None
@@ -54,6 +60,8 @@ class Task:
         task["end_time"] = task["end_time"][:10]
         
         task["create_time_str"] = common_util.timestamp_to_string(task["create_time"])
+        if "last_current_value" not in task:
+            task["last_current_value"] = 0
         task["last_current_value"] = round(task["last_current_value"],6)
         task["task_id"] = str(task["_id"])
         return task
