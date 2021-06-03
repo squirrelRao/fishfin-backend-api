@@ -91,6 +91,7 @@ class Backtest:
     def query_result(self,task):
         ror  = list()
         res = self.db.backtest.find({"task_id":str(task["_id"])})
+        last_total_ror = 0
         for item in res:
             item.pop("_id")
             item["start_ktime_str"] = common_util.timestamp_to_string(item["start_ktime"])
@@ -98,7 +99,8 @@ class Backtest:
             item["ror"] = round(item["ror"],2)
             item["end_value"] = str(item["end_value"])
             item["start_value"] = str(item["start_value"])
-            item["ror"] = str(item["ror"])
+            last_total_ror += item["ror"]
+            item["total_ror"] = round(last_total_ror,2)
             ror.append(item)
         st = self.db.user_strategy.find_one({"user_id":task["user_id"],"strategy":"rsi"})
         st.pop("_id")
