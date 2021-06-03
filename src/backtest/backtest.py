@@ -25,7 +25,9 @@ class Backtest:
             return
         task["_id"] = str(task["_id"])
         _task.update_task_status(task["_id"],1)
-        self.run(task["_id"],task["user_id"],task["strategy"],task["quote_currency"],task["base_currency"],task["period"],task["limit_trade_count"],task["start_time"],task["end_time"])
+        start_time = common_util.string_to_timestamp(task["start_time"])
+        end_time = common_util.string_to_timestamp(task["end_time"])
+        self.run(task["_id"],task["user_id"],task["strategy"],task["quote_currency"],task["base_currency"],task["period"],task["limit_trade_count"],start_time,end_time)
         _task.update_task_status(task["_id"],2)
 
     def run(self,task_id,user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time):
@@ -33,10 +35,13 @@ class Backtest:
         if strategy == "rsi":
             st = RsiStrategy()
         
+        self.db.user_simulation_currency.update({"currency":quote_currency},{"$set":{"balance":0}})
+        self.db.user_simulation_currency.update({"currency":base_currency},{"$set":{"balance":5000}})
+
+
         kline = Kline()
         symbol = quote_currency + base_currency
         lines = kline.get_ktime_range_data(symbol,period,start_time,end_time)
-        
         #execute strategy
         for line in lines:
             st.run(user_id,quote_currency,base_currency,period,line["ktime"],limit_trade_count,trade_name="simulation")
@@ -115,9 +120,6 @@ def clear_data():
     db.user_quantization_signal.delete_many({})
     db.simulation_trade_order.delete_many({})
     db.simulation_trade_log.delete_many({})
-    db.backtest.delete_many({})
-    db.user_simulation_currency.update_one({"currency":"usdt"},{"$set":{"balance":1000}})
-    db.user_simulation_currency.update_one({"currency":"btc"},{"$set":{"balance":0}})
 
 
 
