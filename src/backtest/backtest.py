@@ -24,10 +24,10 @@ class Backtest:
         if task is None:
             return
         task.update_status(task["task_id"],1)
-        self.run(task["user_id"],task["strategy"],task["quote_currency"],task["base_currency"],task["period"],task["limit_trade_count"],task["start_time"],task["end_time"])
+        self.run(task["_id"],task["user_id"],task["strategy"],task["quote_currency"],task["base_currency"],task["period"],task["limit_trade_count"],task["start_time"],task["end_time"])
         task.update_status(task["task_id"],2)
 
-    def run(self,user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time):
+    def run(self,task_id,user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time):
         st = None
         if strategy == "rsi":
             st = RsiStrategy()
@@ -53,6 +53,10 @@ class Backtest:
             step =  2 * 24
         elif period == "60min":
             step = 24
+        total_ror = 0
+        avg_ror = 0
+        _i = 0
+        last_current_value = 0
         for index,log in enumerate(logs[0:]):
             if index % ( step - 1 ) != 0:
                 continue 
@@ -66,10 +70,16 @@ class Backtest:
             pre_value = pre["price"] * pre["quote_currency_balance"] + pre["base_currency_balance"]
             current_value = current["price"] * current["quote_currency_balance"] + current["base_currency_balance"]
             ror = round((float(current_value - pre_value)/pre_value * 100),2)
+            total_ror += ror
+            _i += 1
             quote_currency_balance = current["quote_currency_balance"]
             base_currency_balance = current["base_currency_balance"]
+            last_current_value = current_value
             self.db.backtest.update({"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"start_ktime":pre["ktime"],"end_ktime":current["ktime"]},{"$set":{"user_id":user_id,"symbol":symbol,"pre_quote_currency_balance":pre["quote_currency_balance"],"pre_base_currency_balance":pre["base_currency_balance"],"period":period,"strategy":strategy,"start_price":pre["price"],"end_price":current["price"],"start_value":pre_value,"end_value":current_value,"start_index":index,"end_index":end_index,"start_ktime":pre["ktime"],"end_ktime":current["ktime"],"ror":ror,"ror_period":"24hour","quote_currency":quote_currency,"current_quote_currency_balance":quote_currency_balance,"base_currency":base_currency,"current_base_currency_balance":base_currency_balance,"trade_log_id":current["log_id"]}},upsert=True)
-            
+        avg_ror = round(total_ror/_i,2)
+        task =  Task()
+        task.update_task_ror(task_id,avg_ror,total_ror,last_current_value)
+        task.update_task_status(task_id,2) #2 means complete
         return
 
     def query_result(self,user_id,strategy,quote_currency,base_currency,period,start_time,end_time,action,page_size,page_no):
@@ -147,8 +157,9 @@ def main():
     db = mongo_client.fishfin
     db.user_simulation_currency.update({"currency":quote_currency},{"$set":{"balance":0}})
     db.user_simulation_currency.update({"currency":"usdt"},{"$set":{"balance":5000}})
+    task_id = "60b6fe55c113f6e0e9b853ff" 
     print("start backtest")
-    test.run(user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time)
+    test.run(task_id,user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time)
     print("backtest end ")
 
 
@@ -168,7 +179,7 @@ def query():
     action = ""
     quote_currency = "btc"
     base_currency = "usdt"
-
+    
     data = test.query_result(user_id,strategy,quote_currency,base_currency,period,start_time,end_time,action,page_size,page_no)
     print(data)
 

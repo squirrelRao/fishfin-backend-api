@@ -32,7 +32,7 @@ class Task:
             item["create_time_str"] = common_util.timestamp_to_string(item["create_time"])
             item["start_time"] = item["start_time"][:10]
             item["end_time"] = item["end_time"][:10]
-            item["ror"] = 0
+            item["last_current_value"] = round(item["last_current_value"],6) 
             x.append(item)
             
         data = {"count":count,"data":x}
@@ -51,9 +51,12 @@ class Task:
         task["start_time"] = task["start_time"][:10]
         task["end_time"] = task["end_time"][:10]
         task["create_time_str"] = common_util.timestamp_to_string(task["create_time"])
-        task["ror"] = 0 
+        task["last_current_value"] = round(task["last_current_value"],6)
         task["task_id"] = str(task["_id"])
         return task
+    
+    def update_task_ror(self,task_id,avg_ror,total_ror,last_current_value):
+        self.db.test_task.update({"_id":ObjectId(task_id)},{"$set":{"last_current_value":last_current_value,"avg_ror":avg_ror,"total_ror":total_ror,"update_time":time.time()}})
 
     #todo 0, doing 1 done 2 cancel -1
     def update_task_status(self,task_id,status):
