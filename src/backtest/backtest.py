@@ -35,8 +35,8 @@ class Backtest:
         if strategy == "rsi":
             st = RsiStrategy()
         
-        self.db.user_simulation_currency.update({"currency":quote_currency},{"$set":{"balance":0}})
-        self.db.user_simulation_currency.update({"currency":base_currency},{"$set":{"balance":5000}})
+        self.db.user_simulation_currency.update({"currency":quote_currency,"user_id":user_id},{"$set":{"user_id":user_id,"currency":quote_currency,"balance":0}},upsert=True)
+        self.db.user_simulation_currency.update({"currency":base_currency,"user_id":user_id},{"$set":{"user_id":user_id,"currency":base_currency,"balance":5000}},upsert=True)
 
 
         kline = Kline()
