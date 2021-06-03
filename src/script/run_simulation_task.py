@@ -33,7 +33,8 @@ def simulate_task():
     start = time.time()
     print("start backtest",str(task["_id"]),"-",task["user_id"])
     #(task_id,user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time)
-    backtest.run(str(task["_id"]),task["user_id"],task["strategy"],task["quote_currency"],task["base_currency"],task["period"],task["limit_trade_count"],task["start_time"],task["end_time"])
+    backtest.run_task()
+    #backtest.run(str(task["_id"]),task["user_id"],task["strategy"],task["quote_currency"],task["base_currency"],task["period"],task["limit_trade_count"],task["start_time"],task["end_time"])
     print("end backtest",str(task["_id"]),"-",task["user_id"],"-","spent:",(time.time() - start))
 
 

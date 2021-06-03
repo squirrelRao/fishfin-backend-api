@@ -19,13 +19,14 @@ class Backtest:
         return
 
     def run_task(self):
-        task = Task()
-        task = task.get_waiting_task()
+        _task = Task()
+        task = _task.get_waiting_task()
         if task is None:
             return
-        task.update_status(task["task_id"],1)
+        task["_id"] = str(task["_id"])
+        _task.update_task_status(task["_id"],1)
         self.run(task["_id"],task["user_id"],task["strategy"],task["quote_currency"],task["base_currency"],task["period"],task["limit_trade_count"],task["start_time"],task["end_time"])
-        task.update_status(task["task_id"],2)
+        _task.update_task_status(task["_id"],2)
 
     def run(self,task_id,user_id,strategy,quote_currency,base_currency,period,limit_trade_count,start_time,end_time):
         st = None
