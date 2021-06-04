@@ -35,12 +35,14 @@ class Backtest:
         if strategy == "rsi":
             st = RsiStrategy()
         
+        symbol = quote_currency + base_currency
+        #reset data firstly
+        self.reset_simulation_data(user_id,symbol,period,strategy)
         self.db.user_simulation_currency.update({"currency":quote_currency,"user_id":user_id},{"$set":{"user_id":user_id,"currency":quote_currency,"balance":0}},upsert=True)
         self.db.user_simulation_currency.update({"currency":base_currency,"user_id":user_id},{"$set":{"user_id":user_id,"currency":base_currency,"balance":5000}},upsert=True)
 
 
         kline = Kline()
-        symbol = quote_currency + base_currency
         lines = kline.get_ktime_range_data(symbol,period,start_time,end_time)
         #execute strategy
         for line in lines:
@@ -113,6 +115,25 @@ class Backtest:
         st.pop("_id")
         data = {"back_result":ror,"strategy_detail":st}
         return data
+
+    def reset_simulation_data(self,user_id,symbol,period,strategy="rsi"):
+        print("reset simulation data")
+        db = mongo_client.fishfin
+        key = {"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy}
+        db.simulation_trade_log.delete_many(key)
+        print("delete simulation trade log",key)
+        key["trade_amount"]={"$ne":-1}
+        db.user_quantization_signal.delete_many(key)
+        print("delete user quantization signal",key)
+        key.pop('trade_amount')
+        key["trade_name"] = "simulation"
+        db.strategy_log.delete_many(key)
+        print("delete strategy log",key)
+        key.pop('trade_name')
+        key.pop('symbol')
+        key.pop('period')
+        db.simulation_trade_order.delete_many(key)
+        print("delete simulation trade order",key)
 
 def clear_data():
     db = mongo_client.fishfin
