@@ -19,13 +19,22 @@ class RsiStrategy(Strategy):
         super(RsiStrategy,self).__init__()
         self.name = "rsi"
         self.period_count = 14
-        self.min_sell_rsi = 30
-        self.max_buy_rsi = 70
+        self.min_sell_rsi = 20
+        self.max_buy_rsi = 80
         return
 
     #trade_count_type : limit
     def run(self,user_id,quote_currency,base_currency,period,ktime,limit_trade_count,trade_name="simulation"):
         
+        if period == "1min":
+            self.period_count = 14
+        elif period == "5min":
+            self.period_count = 14
+        elif period == "30min":
+            self.period_count = 14
+        elif period == "60min":
+            self.period_count = 14
+
         symbol = quote_currency + base_currency
         kline = Kline()
         log_info = {"quote_currency":quote_currency,"base_currency":base_currency,"symbol":symbol,"period":period,"ktime":ktime,"strategy":self.name,"limit_trade_count":limit_trade_count,"trade_name":trade_name,"period_count":self.period_count,"min_sell_rsi":self.min_sell_rsi,"max_buy_rsi":self.max_buy_rsi,"user_id":user_id}
