@@ -16,7 +16,7 @@ class SimulationTrade(Trade):
         return
 
     #submit market transaction: buy/sell
-    def submit_market_transaction(self,user_id,period,symbol,amount,price,currency,trans_fee=0.002,ktime=time.time(),strategy=None,_type="buy"):
+    def submit_market_transaction(self,user_id,period,symbol,amount,price,currency,trans_fee=0.002,ktime=time.time(),strategy=None,_type="buy",rsi=0):
         order_id = self.create_order(user_id,amount,price,symbol,trans_fee,currency,strategy)
         print(currency)
         quote_currency = currency
@@ -28,7 +28,7 @@ class SimulationTrade(Trade):
         quote_currency_balance = quote_currency_balance["balance"]
         base_currency_balance = base_currency_balance["balance"]
 
-        log_id = self.log(user_id,order_id,amount,price,period,symbol,currency,trans_fee,base_currency_balance,quote_currency_balance,ktime,strategy,action="new")
+        log_id = self.log(user_id,order_id,amount,price,period,symbol,currency,trans_fee,base_currency_balance,quote_currency_balance,ktime,strategy,action="new",log_id="",rsi=rsi)
         base_change = 0 # symbol is btcusdt, base currency is btc , quote currency is usdt
         quote_change = 0
         # y = x/p * (1-F)
@@ -56,5 +56,5 @@ class SimulationTrade(Trade):
         self.db.user_simulation_currency.update({"user_id":user_id,"currency":quote_currency},{"$set":{"balance":quote_currency_balance}})
         
         self.finish_order(order_id)
-        self.log(user_id,order_id,amount,price,period,symbol,currency,trans_fee,base_currency_balance,quote_currency_balance,ktime,strategy,action="finish",log_id=log_id)
+        self.log(user_id,order_id,amount,price,period,symbol,currency,trans_fee,base_currency_balance,quote_currency_balance,ktime,strategy,action="finish",log_id=log_id,rsi=rsi)
         return True

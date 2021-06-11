@@ -80,10 +80,11 @@ class Backtest:
             ror = round((float(current_value - pre_value)/pre_value * 100),2)
             total_ror += ror
             _i += 1
+            rsi = current["rsi"]
             quote_currency_balance = current["quote_currency_balance"]
             base_currency_balance = current["base_currency_balance"]
             last_current_value = current_value
-            self.db.backtest.update({"task_id":task_id,"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"start_ktime":pre["ktime"],"end_ktime":current["ktime"]},{"$set":{"task_id":task_id,"user_id":user_id,"symbol":symbol,"pre_quote_currency_balance":pre["quote_currency_balance"],"pre_base_currency_balance":pre["base_currency_balance"],"period":period,"strategy":strategy,"start_price":pre["price"],"end_price":current["price"],"start_value":pre_value,"end_value":current_value,"start_index":index,"end_index":end_index,"start_ktime":pre["ktime"],"end_ktime":current["ktime"],"ror":ror,"ror_period":"24hour","quote_currency":quote_currency,"current_quote_currency_balance":quote_currency_balance,"base_currency":base_currency,"current_base_currency_balance":base_currency_balance,"trade_log_id":current["log_id"]}},upsert=True)
+            self.db.backtest.update({"task_id":task_id,"user_id":user_id,"symbol":symbol,"period":period,"strategy":strategy,"start_ktime":pre["ktime"],"end_ktime":current["ktime"]},{"$set":{"task_id":task_id,"user_id":user_id,"symbol":symbol,"rsi":rsi,"pre_quote_currency_balance":pre["quote_currency_balance"],"pre_base_currency_balance":pre["base_currency_balance"],"period":period,"strategy":strategy,"start_price":pre["price"],"end_price":current["price"],"start_value":pre_value,"end_value":current_value,"start_index":index,"end_index":end_index,"start_ktime":pre["ktime"],"end_ktime":current["ktime"],"ror":ror,"ror_period":"24hour","quote_currency":quote_currency,"current_quote_currency_balance":quote_currency_balance,"base_currency":base_currency,"current_base_currency_balance":base_currency_balance,"trade_log_id":current["log_id"]}},upsert=True)
         if _i != 0:
             avg_ror = round(total_ror/_i,2)
         task =  Task()
