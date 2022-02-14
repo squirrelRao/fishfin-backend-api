@@ -11,8 +11,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 DEFAULT_SMTP = "smtp.163.com"
 DEFAULT_PORT = 465
-DEFAULT_MAIL = "hqraop@163.com"
-DEFAULT_PWD = "TJBXMTEIFYSEPUIJ"
+DEFAULT_MAIL = ""
+DEFAULT_PWD = ""
 
 class MailClient:
 
@@ -72,7 +72,7 @@ class MailClient:
         self.sendMail(subject,content,[mail_to])
 
 def main():
-    (MailClient()).sendLoginCode("hqraop@163.com","1234")
+    (MailClient()).sendLoginCode("","")
 
 
 #main()
