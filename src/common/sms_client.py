@@ -12,8 +12,8 @@ import random
 class SmsClient:
 
     def __init__(self):
-        self.access_key = "LTAI5tAetQgMhAS4yJGXLAqY"
-        self.access_token = "VKi42nJZp2BySQvzujDn9VN0xLzBur"
+        self.access_key = ""
+        self.access_token = ""
         self.sign = "阿里云"
         self.region = "cn-hangzhou"
         self.client = AcsClient(self.access_key,self.access_token,self.region)
@@ -52,6 +52,6 @@ class SmsClient:
 
 def main():
     sms = SmsClient()
-    res = sms.sendSms("13439083248","111","login")
+    res = sms.sendSms("","","login")
     print(res)
 main()
