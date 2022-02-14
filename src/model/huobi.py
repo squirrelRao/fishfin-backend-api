@@ -10,8 +10,8 @@ class HuobiTrade:
     def __init__(self):
         self.host = "https://api-aws.huobi.pro" 
         self.host = "https://api.huobi.pro"
-        self.access_key = "00f2bf63-703e6631-dbye2sf5t7-7f94b"
-        self.secret_key = "795f1d60-25eee502-07545a80-1c76f"
+        self.access_key = ""
+        self.secret_key = ""
 
     #get market status
     def get_market_status(self):
